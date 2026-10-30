@@ -142,3 +142,4 @@ In-app alerts delivered to students and administrators.
 
 - **Indexes:**
   - `{ userId: 1, isRead: 1, createdAt: -1 }` (optimal index for rendering unread notification bell)
+

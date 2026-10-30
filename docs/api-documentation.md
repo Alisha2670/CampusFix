@@ -295,3 +295,4 @@ Authentication: JWT via HTTP-only Cookie (`token`)
     ]
   }
   ```
+

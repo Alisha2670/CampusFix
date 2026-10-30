@@ -74,3 +74,4 @@ MongoDB Atlas is the single data authority. Only Node.js has database read/write
 | Node.js $\to$ Cloudinary | HTTPS | Binary stream | API Key + Secret signature |
 | Node.js $\to$ FastAPI | Internal HTTP | JSON | Internal private port (timeout: 3000ms) |
 | React $\to$ FastAPI | **FORBIDDEN** | N/A | Direct browser-to-AI calls are blocked |
+

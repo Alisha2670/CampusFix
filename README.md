@@ -25,3 +25,4 @@ All architectural contracts, database schemas, and API documentation are maintai
 - [docs/api-documentation.md](docs/api-documentation.md) — REST API endpoints, request/response formats
 - [docs/testing.md](docs/testing.md) — Testing strategy and verification matrix
 - [docs/development-progress.md](docs/development-progress.md) — Daily development log and audit trail
+
