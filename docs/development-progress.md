@@ -14,54 +14,71 @@
 - [x] Implement Auth Controller, Service, and Routes (`register`, `login`, `logout`, `me`)
 - [x] Implement JWT authentication and RBAC middleware
 - [x] Write and run Jest API & Unit tests for authentication
-- [ ] Day 1 Git Push (Awaiting user permission)
+- [x] Day 1 Git Commit & Push (`566221e`)
 
 ---
 
-## Day 1 Audit Summary
+## Day 2 — Complaint Submission Pipeline, Cloudinary & React Form
+
+### Objectives:
+- [x] Phase 2.1: Complaint Data Model (`src/models/Complaint.ts`) with human-friendly ID generator (`FC-1001`), embedded location, and `Pending` AI state
+- [x] Phase 2.2: Cloudinary CDN integration (`src/config/cloudinary.ts`, `src/services/cloudinary.service.ts`) with Multer memory buffer streaming ($\le 5\text{MB}$)
+- [x] Phase 2.3: Complaint Creation API (`POST /api/complaints`, `GET /api/complaints/my`, `GET /api/complaints/:id`)
+- [x] Phase 2.4: Frontend initialization (`frontend/`) with React 18, TypeScript, Vite, Tailwind CSS, and Student Complaint Submission form
+- [x] Phase 2.5: Automated testing & Vite bundle verification (23/23 tests passing)
+- [ ] Day 2 Git Push (Awaiting user permission)
+
+---
+
+## Day 2 Audit Summary
 
 - **Completed Modules:**
-  - Module 1: Project Scaffold, Config, TypeScript Compiler, Health Check (`/api/health`)
-  - Module 2: User Domain Model, Schema Invariants, Password Hashing & Zod Validators
-  - Module 3: Security & Authorization Middleware (`requireAuth`, `requireRole`, `errorHandler`)
-  - Module 4: Auth Endpoints (`/api/auth/register`, `/api/auth/login`, `/api/auth/logout`, `/api/auth/me`)
-- **Pending Modules:** Day 2 Complaint Submission Pipeline
+  - `src/models/Complaint.ts`: Mongoose schema, compound indexes, embedded location, status history, and AI analysis subdocument.
+  - `src/services/cloudinary.service.ts`: Secure image buffer streaming to Cloudinary CDN.
+  - `src/middleware/upload.middleware.ts`: Multer memory buffer with MIME type and size checks.
+  - `src/validators/complaint.validator.ts`: Zod schema validation for complaints.
+  - `src/controllers/complaint.controller.ts`: Complaint endpoints with IDOR ownership defense.
+  - `frontend/`: Full React 18 + Vite + Tailwind application with centralized Axios client, Auth Context, responsive Navbar, and Student Complaint Submission form.
 - **Files Created / Modified:**
-  - `backend/package.json`
-  - `backend/tsconfig.json`
-  - `backend/jest.config.js`
-  - `backend/.env.example`
-  - `backend/.env`
-  - `backend/src/constants/enums.ts`
-  - `backend/src/config/env.ts`
-  - `backend/src/config/db.ts`
-  - `backend/src/utils/response.util.ts`
-  - `backend/src/models/User.ts`
-  - `backend/src/validators/auth.validator.ts`
-  - `backend/src/middleware/auth.middleware.ts`
-  - `backend/src/middleware/role.middleware.ts`
-  - `backend/src/middleware/error.middleware.ts`
-  - `backend/src/services/auth.service.ts`
-  - `backend/src/controllers/auth.controller.ts`
-  - `backend/src/routes/auth.routes.ts`
+  - `backend/src/models/Complaint.ts`
+  - `backend/src/config/cloudinary.ts`
+  - `backend/src/services/cloudinary.service.ts`
+  - `backend/src/middleware/upload.middleware.ts`
+  - `backend/src/validators/complaint.validator.ts`
+  - `backend/src/services/complaint.service.ts`
+  - `backend/src/controllers/complaint.controller.ts`
+  - `backend/src/routes/complaint.routes.ts`
   - `backend/src/app.ts`
-  - `backend/src/server.ts`
-  - `backend/tests/health.test.ts`
-  - `backend/tests/auth.test.ts`
-  - `TASK.md`
+  - `backend/tests/complaint.test.ts`
+  - `frontend/package.json`
+  - `frontend/tsconfig.json`
+  - `frontend/tsconfig.node.json`
+  - `frontend/vite.config.ts`
+  - `frontend/tailwind.config.js`
+  - `frontend/postcss.config.js`
+  - `frontend/index.html`
+  - `frontend/src/index.css`
+  - `frontend/src/types/index.ts`
+  - `frontend/src/api/client.ts`
+  - `frontend/src/api/auth.api.ts`
+  - `frontend/src/api/complaint.api.ts`
+  - `frontend/src/context/AuthContext.tsx`
+  - `frontend/src/components/common/Navbar.tsx`
+  - `frontend/src/components/complaints/ComplaintForm.tsx`
+  - `frontend/src/pages/SubmitComplaintPage.tsx`
+  - `frontend/src/pages/HomePage.tsx`
+  - `frontend/src/pages/auth/LoginPage.tsx`
+  - `frontend/src/pages/auth/RegisterPage.tsx`
+  - `frontend/src/App.tsx`
+  - `frontend/src/main.tsx`
   - `docs/testing.md`
-  - `docs/development-progress.md`
+  - `TASK.md`
 - **APIs Implemented:**
-  - `GET /api/health`
-  - `POST /api/auth/register`
-  - `POST /api/auth/login`
-  - `POST /api/auth/logout`
-  - `GET /api/auth/me`
+  - `POST /api/complaints`
+  - `GET /api/complaints/my`
+  - `GET /api/complaints/:id`
 - **Tests Executed & Actual Results:**
-  - Total Tests: 14 | Passed: 14 | Failed: 0 | Execution Time: 5.46s
-- **Known Issues / Edge Cases Addressed:**
-  - Enforced `role: 'student'` on registration to prevent privilege escalation
-  - Password hashes stripped from JSON responses automatically via schema transform
-  - MongoDB memory server tests run isolated without polluting external databases
+  - Backend Tests: 23 passed, 0 failed (3 test suites)
+  - Frontend Build: 1,668 modules transformed, 0 type errors, built in 4.75s
 - **Next Day's Plan:**
-  - Day 2: Complaint Submission Pipeline (Complaint model, Cloudinary integration, Complaint API, React frontend form)
+  - Day 3: Student Ticket Tracking ("My Complaints" list & details view) and Admin Triage Dashboards

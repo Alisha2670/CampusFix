@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { ENV } from './config/env.js';
 import authRoutes from './routes/auth.routes.js';
+import complaintRoutes from './routes/complaint.routes.js';
 import { requireAuth } from './middleware/auth.middleware.js';
 import { requireRole } from './middleware/role.middleware.js';
 import { ROLES } from './constants/enums.js';
@@ -33,6 +34,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 
 // Route Mounts
 app.use('/api/auth', authRoutes);
+app.use('/api/complaints', complaintRoutes);
 
 // Test Helper Routes (Available only in test environment)
 if (ENV.NODE_ENV === 'test') {
