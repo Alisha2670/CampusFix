@@ -5,6 +5,8 @@ import { HomePage } from './pages/HomePage.js';
 import { LoginPage } from './pages/auth/LoginPage.js';
 import { RegisterPage } from './pages/auth/RegisterPage.js';
 import { SubmitComplaintPage } from './pages/SubmitComplaintPage.js';
+import { MyComplaintsPage } from './pages/MyComplaintsPage.js';
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage.js';
 import { Loader2 } from 'lucide-react';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -20,6 +22,28 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user.role !== 'admin') {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -41,6 +65,22 @@ export const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/my-complaints"
+            element={
+              <ProtectedRoute>
+                <MyComplaintsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboardPage />
+              </AdminRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
@@ -49,4 +89,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-

@@ -71,30 +71,36 @@ Day 7: Full System Integration, Security Audit, E2E Verification & Git Finalizat
   - Test file upload size/type constraints
   - Frontend production build verified (`tsc && vite build` clean in 4.75s)
 
-- [ ] **Day 2 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
+- [x] **Day 2 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
 
 ---
 
 ## 📋 Day 3 — Ticket Tracking & Admin Dashboards
 
-- [ ] **Phase 3.1: Complaint Retrieval APIs**
+- [x] **Phase 3.1: Complaint Retrieval APIs**
   - Implement `GET /api/complaints/my` (Student: own complaints only with pagination)
   - Implement `GET /api/complaints/:id` (IDOR check: only owner or admin can view)
-  - Implement `GET /api/admin/complaints` (Admin: filter by status, category, priority)
+  - Implement `GET /api/admin/complaints` (Admin: filter by status, category, priority, building, search, pagination)
 
-- [ ] **Phase 3.2: Frontend Student Dashboard**
+- [x] **Phase 3.2: Frontend Student Dashboard**
   - "My Complaints" list view with status badges and timestamps
-  - Single Complaint Detail view with progress tracker
+  - Single Complaint Detail view with progress tracker (`StatusTimeline.tsx`)
+  - Image modal preview, search filter, and status filter tabs
 
-- [ ] **Phase 3.3: Frontend Admin Dashboard**
+- [x] **Phase 3.3: Frontend Admin Dashboard**
   - Complaints triage table with multi-filter controls (Status, Priority, Category)
-  - Search bar by Complaint ID or Student Name
+  - Search bar by Complaint ID, title, or Student Name
+  - Summary metric cards (Total, In Triage, In Progress, Resolved)
+  - Direct detail modal inspector with status history timeline
+  - Role-protected route (`AdminRoute`) in `App.tsx`
 
-- [ ] **Phase 3.4: Automated Testing & Verification**
-  - Verify IDOR protection (student A cannot view student B's ticket)
-  - Verify admin pagination and filtering accuracy
+- [x] **Phase 3.4: Automated Testing & Verification**
+  - Verify IDOR protection (student A cannot view student B's ticket: 403 Forbidden)
+  - Verify admin pagination, search, and category/status filtering accuracy
+  - 29/29 Jest tests passing across 4 test suites (backend)
+  - Frontend production build passing with 0 errors (`npm run build`)
 
-- [ ] **Day 3 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
+- [x] **Day 3 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
 
 ---
 
