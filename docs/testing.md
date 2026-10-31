@@ -87,4 +87,28 @@ No module is marked complete until all applicable tests pass and actual executio
 **Frontend Verification: `npm run build`**
 - [x] Vite React TypeScript build: 1,674 modules transformed, zero type errors, production bundle generated in 4.09s (PASSED)
 
-**Cumulative Summary:** 5 Test Suites Passed, 41 Total Automated Tests Passed, 0 Failed.
+### Day 5: AI Microservice, Embeddings & Duplicate Detection (Executed: 2026-10-31)
+
+**Test Suite 6 (Python Pytest): `ai_service/tests/` (Phases 5.1, 5.2, 5.3)**
+- [x] `test_health_check_endpoint`: `GET /health` returns status "healthy" and model_loaded true (PASSED - 0.05s)
+- [x] `test_semantic_duplicate_detection`: 384-dimensional cosine similarity identifies semantically similar issues (similarity >= 0.70) (PASSED - 3.12s)
+- [x] `test_category_and_priority_classifier`: NLP classifier correctly predicts "Electrical" and "Urgent" for spark hazard text (PASSED - 0.02s)
+- [x] `test_analyze_api_endpoint`: `POST /analyze` full pipeline returns suggested category, priority, confidence score, and duplicate candidate list (PASSED - 2.85s)
+
+**Test Suite 7 (Node.js Jest): `tests/ai.test.ts` (Phase 5.4)**
+- [x] Resiliency & Graceful Degradation: when AI microservice is offline or times out (3000ms budget), ticket remains safely in DB and `aiAnalysis.status` degrades to "Failed" without throwing (PASSED - 216ms)
+- [x] Valid Payload Integration: records completed AI analysis with suggested category, priority, and duplicates in MongoDB when microservice returns 200 OK (PASSED - 52ms)
+
+**Full Backend Regression (All 6 Suites): `npm test`**
+- [x] `tests/health.test.ts` (2 tests PASSED)
+- [x] `tests/auth.test.ts` (12 tests PASSED)
+- [x] `tests/complaint.test.ts` (9 tests PASSED)
+- [x] `tests/admin.test.ts` (12 tests PASSED)
+- [x] `tests/notification.test.ts` (6 tests PASSED)
+- [x] `tests/ai.test.ts` (2 tests PASSED)
+- [x] Total: 43/43 tests passing across 6 suites in 22.00s.
+
+**Frontend Verification: `npm run build`**
+- [x] Vite React TypeScript build: 1,674 modules transformed, zero type errors, production bundle generated in 4.81s (PASSED)
+
+**Cumulative Summary:** 6 Backend Test Suites (43 Tests) + 1 Python Pytest Suite (4 Tests) = 47 Total Tests Passed, 0 Failed. All frontend builds passing cleanly.

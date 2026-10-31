@@ -1,0 +1,2 @@
+"""CampusFix AI Microservice Package"""
+

@@ -189,3 +189,64 @@
   - Frontend Build: 1,674 modules transformed, 0 type errors, built cleanly in 4.09s (`tsc && vite build`)
 - **Next Day's Plan:**
   - Day 5: AI Microservice (FastAPI + SentenceTransformers `all-MiniLM-L6-v2` + duplicate cosine similarity + automated categorization + Node $\leftrightarrow$ FastAPI timeout resiliency).
+
+---
+
+## Day 5 — AI Microservice, Embeddings & Duplicate Detection
+
+### Objectives:
+- [x] Phase 5.1: FastAPI Setup & Health Check (`ai_service/app/main.py`, `ai_service/app/config.py`, `ai_service/app/services/embedding_service.py`, `GET /health`)
+- [x] Phase 5.2: NLP & Semantic Duplicate Detection (`ai_service/app/services/duplicate_service.py`, 384-d `all-MiniLM-L6-v2` cosine similarity threshold 0.70)
+- [x] Phase 5.3: Automated Categorization & Priority Engine (`ai_service/app/services/classifier_service.py`, `POST /analyze`)
+- [x] Phase 5.4: Node.js $\leftrightarrow$ FastAPI Integration & Resiliency (`backend/src/services/ai.service.ts`, native Node fetch with 3000ms AbortController timeout, graceful fallback, zero ticket loss guarantee)
+- [x] Phase 5.5: Automated Testing & Verification (4/4 Pytest passing, 43/43 Jest passing across 6 suites, Frontend build passing 0 errors)
+- [x] Day 5 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)
+
+---
+
+## Day 5 Audit Summary
+
+- **Completed Modules:**
+  - `ai_service/app/config.py`: Centralized configuration with Pydantic BaseSettings, model name (`all-MiniLM-L6-v2`), similarity threshold (`0.70`), and port configuration.
+  - `ai_service/app/services/embedding_service.py`: Singleton wrapper around `SentenceTransformer` with lifespan pre-loading and lazy initialization fallback.
+  - `ai_service/app/services/duplicate_service.py`: Cosine similarity computation between new complaint text and recent open complaints, identifying candidates above 70% threshold.
+  - `ai_service/app/services/classifier_service.py`: Domain-specific category intent matcher across 5 facility categories + safety hazard urgency heuristic detector.
+  - `ai_service/app/routes/analysis.py`: Unified `POST /analyze` endpoint processing incoming complaints against candidate pool.
+  - `ai_service/app/main.py`: FastAPI application entrypoint with CORS, lifespan model initialization, and `GET /health`.
+  - `ai_service/tests/test_health.py` & `ai_service/tests/test_analysis.py`: Unit and integration test suite for Python AI microservice.
+  - `backend/src/services/ai.service.ts`: Resilient Node.js integration service utilizing native `fetch` and `AbortController` (3000ms timeout budget). Gracefully records `Failed` on timeout or offline microservice without failing ticket creation (Mandatory Architectural Decision #2).
+  - `backend/src/services/complaint.service.ts`: Updated to persist complaint in MongoDB first, then initiate asynchronous non-blocking AI analysis.
+  - `frontend/src/pages/admin/AdminDashboardPage.tsx`: AI insights widget highlighting potential duplicate complaints with match confidence and linked ticket references.
+  - `backend/tests/ai.test.ts`: Jest integration test suite verifying graceful degradation when AI is offline and successful recording of AI tags when online.
+- **Files Created / Modified:**
+  - `ai_service/requirements.txt`
+  - `ai_service/app/__init__.py`
+  - `ai_service/app/config.py`
+  - `ai_service/app/main.py`
+  - `ai_service/app/routes/__init__.py`
+  - `ai_service/app/routes/analysis.py`
+  - `ai_service/app/schemas/__init__.py`
+  - `ai_service/app/schemas/analysis_schema.py`
+  - `ai_service/app/services/__init__.py`
+  - `ai_service/app/services/classifier_service.py`
+  - `ai_service/app/services/duplicate_service.py`
+  - `ai_service/app/services/embedding_service.py`
+  - `ai_service/tests/__init__.py`
+  - `ai_service/tests/test_analysis.py`
+  - `ai_service/tests/test_health.py`
+  - `backend/src/services/ai.service.ts`
+  - `backend/src/services/complaint.service.ts`
+  - `backend/tests/ai.test.ts`
+  - `frontend/src/pages/admin/AdminDashboardPage.tsx`
+  - `TASK.md`
+  - `docs/development-progress.md`
+  - `docs/testing.md`
+- **APIs Implemented / Verified:**
+  - `GET http://localhost:8000/health` (FastAPI health check & model readiness)
+  - `POST http://localhost:8000/analyze` (AI categorization, priority detection, and duplicate scoring)
+- **Tests Executed & Actual Results:**
+  - Python AI Tests: 4 passed, 0 failed in 9.08s (`pytest tests -v`)
+  - Node.js Backend Tests: 43 passed, 0 failed across 6 test suites in 22.00s (`npm test`)
+  - Frontend Build: 1,674 modules transformed, 0 type errors, built cleanly in 4.81s (`tsc && vite build`)
+- **Next Day's Plan:**
+  - Day 6: Analytics, Charts & Department Metrics (MongoDB Aggregation pipelines for resolution times, department workload, category breakdown, and frontend analytics charts).

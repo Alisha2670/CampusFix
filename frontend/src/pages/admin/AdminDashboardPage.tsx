@@ -611,6 +611,27 @@ export const AdminDashboardPage: React.FC = () => {
                     <strong>Suggested Urgency:</strong>{' '}
                     {selectedComplaint.aiAnalysis?.suggestedPriority || 'Standard'}
                   </p>
+                  {selectedComplaint.aiAnalysis?.possibleDuplicates && selectedComplaint.aiAnalysis.possibleDuplicates.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-purple-200">
+                      <strong className="text-rose-700 block mb-1 flex items-center gap-1">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-600 inline" />
+                        Semantic Duplicate Matches Detected:
+                      </strong>
+                      <div className="space-y-1">
+                        {selectedComplaint.aiAnalysis.possibleDuplicates.map((dup) => (
+                          <div
+                            key={dup.complaintId}
+                            className="flex items-center justify-between bg-white/80 px-2.5 py-1 rounded-md text-purple-950 font-mono text-[11px] border border-purple-100"
+                          >
+                            <span>Ticket #{dup.complaintId}</span>
+                            <span className="font-bold text-rose-600">
+                              {(dup.similarity * 100).toFixed(1)}% match
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

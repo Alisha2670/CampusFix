@@ -132,12 +132,33 @@ Day 7: Full System Integration, Security Audit, E2E Verification & Git Finalizat
 
 ## 📋 Day 5 — AI Microservice (FastAPI + Embeddings + Duplicates)
 
-- [ ] **Phase 5.1: FastAPI Setup & Health Check**
-- [ ] **Phase 5.2: NLP & Semantic Duplicate Detection**
-- [ ] **Phase 5.3: Automated Categorization & Priority Engine**
-- [ ] **Phase 5.4: Node.js $\leftrightarrow$ FastAPI Integration & Resiliency**
-- [ ] **Phase 5.5: Automated Testing & Verification**
-- [ ] **Day 5 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
+- [x] **Phase 5.1: FastAPI Setup & Health Check**
+  - Scaffold `ai_service/` with Python 3.12, FastAPI, Uvicorn, SentenceTransformers, and Pytest
+  - Implement singleton `EmbeddingService` for `all-MiniLM-L6-v2` with lifespan pre-loading
+  - Implement `GET /health` endpoint verifying AI microservice status and model readiness
+
+- [x] **Phase 5.2: NLP & Semantic Duplicate Detection**
+  - Implement 384-dimensional cosine similarity calculation in `DuplicateService`
+  - Set threshold 0.70 (70%) for semantic duplicate matching against existing complaints
+  - Return similarity percentage and matched ticket metadata
+
+- [x] **Phase 5.3: Automated Categorization & Priority Engine**
+  - Implement intent and keyword matching in `ClassifierService` across 5 categories
+  - Implement safety hazard & impact heuristic scoring for urgency level (`Urgent`, `High`, `Medium`, `Low`)
+  - Expose unified `POST /analyze` endpoint returning category, priority, duplicates, and confidence
+
+- [x] **Phase 5.4: Node.js $\leftrightarrow$ FastAPI Integration & Resiliency**
+  - Implement `AiService` in Node.js backend using native `fetch` and `AbortController` (3000ms timeout budget)
+  - Guarantee zero ticket loss by persisting complaint in MongoDB Atlas *before* triggering AI analysis asynchronously
+  - Implement graceful degradation: if AI microservice times out or is offline, complaint stays safe and `aiAnalysis.status` records `Failed` without failing the user request
+  - Display AI duplicate warnings in Admin Dashboard (`AdminDashboardPage.tsx`)
+
+- [x] **Phase 5.5: Automated Testing & Verification**
+  - 4/4 Pytest tests passing in `ai_service` (`tests/test_health.py`, `tests/test_analysis.py`)
+  - 43/43 Jest tests passing across 6 test suites in `backend` (`tests/ai.test.ts`, `tests/complaint.test.ts`, etc.)
+  - Frontend production build passing with 0 errors (`npm run build`)
+
+- [x] **Day 5 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
 
 ---
 

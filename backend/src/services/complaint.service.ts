@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { Complaint, IComplaintDocument } from '../models/Complaint.js';
 import { CreateComplaintInput } from '../validators/complaint.validator.js';
 import { CloudinaryService } from './cloudinary.service.js';
+import { AiService } from './ai.service.js';
 import { COMPLAINT_STATUSES, AI_ANALYSIS_STATUSES } from '../constants/enums.js';
 
 export class ComplaintService {
@@ -58,6 +59,9 @@ export class ComplaintService {
         },
       ],
     });
+
+    // 4. Asynchronously invoke AI analysis (Zero UI lag / Non-blocking)
+    void AiService.analyzeComplaintAsync(complaint._id);
 
     return complaint;
   }
