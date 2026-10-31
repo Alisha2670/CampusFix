@@ -141,7 +141,7 @@
 - [x] Phase 4.2: In-App Notification System (`src/models/Notification.ts`, `src/services/notification.service.ts`, `GET /api/notifications`, `PATCH /api/notifications/:id/read`, `PATCH /api/notifications/read-all`)
 - [x] Phase 4.3: Frontend Notification UI & Triage Actions (`NotificationBell.tsx` with live badge dropdown, interactive transition and department assignment modal in `AdminDashboardPage.tsx`)
 - [x] Phase 4.4: Automated Testing & Verification (41/41 tests passing across 5 test suites; frontend production build 0 errors)
-- [ ] Day 4 Git Push (Awaiting user permission)
+- [x] Day 4 Git Push (`40395a6`)
 
 ---
 
