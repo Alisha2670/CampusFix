@@ -106,11 +106,27 @@ Day 7: Full System Integration, Security Audit, E2E Verification & Git Finalizat
 
 ## 📋 Day 4 — Admin Triage, State Transitions & In-App Notifications
 
-- [ ] **Phase 4.1: State Machine & Transition Rules**
-- [ ] **Phase 4.2: In-App Notification System**
-- [ ] **Phase 4.3: Frontend Notification UI**
-- [ ] **Phase 4.4: Automated Testing & Verification**
-- [ ] **Day 4 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
+- [x] **Phase 4.1: State Machine & Transition Rules**
+  - Implement Complaint Lifecycle State Machine engine (`src/services/statemachine.service.ts`)
+  - Implement `PATCH /api/admin/complaints/:id/status` (reject illegal jumps with 400 `INVALID_STATUS_TRANSITION`)
+  - Implement `PATCH /api/admin/complaints/:id` (department assignment, priority, category)
+  - Append audit details to embedded `statusHistory`
+
+- [x] **Phase 4.2: In-App Notification System**
+  - Implement Mongoose `Notification` model (`src/models/Notification.ts`) with index `{ userId: 1, isRead: 1, createdAt: -1 }`
+  - Auto-dispatch notifications on status changes and department assignments
+  - Implement notification endpoints (`GET /api/notifications`, `PATCH /api/notifications/:id/read`, `PATCH /api/notifications/read-all`)
+
+- [x] **Phase 4.3: Frontend Triage Actions & In-App Notification Bell**
+  - Build `NotificationBell.tsx` component mounted in `Navbar.tsx` with live unread badge and dropdown
+  - Implement notification API client (`frontend/src/api/notification.api.ts`)
+  - Build interactive admin workflow action cards inside `AdminDashboardPage.tsx` modal (state machine dropdown, audit note, department selector)
+
+- [x] **Phase 4.4: Automated Testing & Verification**
+  - 41/41 automated tests passing across 5 test suites (`tests/notification.test.ts`, `tests/admin.test.ts`, etc.)
+  - Frontend production build passing with 0 errors (`npm run build`)
+
+- [x] **Day 4 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
 
 ---
 

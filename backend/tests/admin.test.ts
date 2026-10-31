@@ -150,5 +150,109 @@ describe('Admin Complaint Retrieval & Triage Tests (Day 3)', () => {
       expect(res.body.error.code).toBe('UNAUTHORIZED');
     });
   });
+
+  describe('PATCH /api/admin/complaints/:id/status (State Machine Lifecycle)', () => {
+    it('should transition complaint from Submitted to Acknowledged and record statusHistory', async () => {
+      const res = await request(app)
+        .patch('/api/admin/complaints/FC-ADMIN-1/status')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          status: COMPLAINT_STATUSES.ACKNOWLEDGED,
+          comment: 'Acknowledged by facility management',
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.complaint.status).toBe(COMPLAINT_STATUSES.ACKNOWLEDGED);
+      expect(res.body.data.complaint.statusHistory.length).toBeGreaterThan(0);
+
+      const latestHistory = res.body.data.complaint.statusHistory.slice(-1)[0];
+      expect(latestHistory.status).toBe(COMPLAINT_STATUSES.ACKNOWLEDGED);
+      expect(latestHistory.comment).toBe('Acknowledged by facility management');
+    });
+
+    it('should reject an illegal jump directly from Submitted to Resolved (400 Bad Request)', async () => {
+      // Re-create a fresh Submitted complaint
+      const freshTicket = await Complaint.create({
+        complaintId: 'FC-ILLEGAL-TEST',
+        studentId: new mongoose.Types.ObjectId(),
+        title: 'Flickering lights in room 300',
+        description: 'Lights keep turning off every 2 minutes.',
+        category: CATEGORIES.ELECTRICAL,
+        priority: PRIORITIES.LOW,
+        status: COMPLAINT_STATUSES.SUBMITTED,
+        location: { building: 'Arts Block', floor: '3', room: '300' },
+      });
+
+      const res = await request(app)
+        .patch(`/api/admin/complaints/${freshTicket.complaintId}/status`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          status: COMPLAINT_STATUSES.RESOLVED,
+          comment: 'Illegal jump attempt',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('INVALID_STATUS_TRANSITION');
+      expect(res.body.message).toContain('Cannot transition complaint status');
+    });
+
+    it('should prevent transitioning out of a terminal state like Resolved', async () => {
+      const res = await request(app)
+        .patch('/api/admin/complaints/FC-ADMIN-3/status') // FC-ADMIN-3 is Resolved
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          status: COMPLAINT_STATUSES.IN_PROGRESS,
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('INVALID_STATUS_TRANSITION');
+    });
+
+    it('should block a regular student from changing status (403 Forbidden)', async () => {
+      const res = await request(app)
+        .patch('/api/admin/complaints/FC-ADMIN-1/status')
+        .set('Authorization', `Bearer ${studentToken}`)
+        .send({
+          status: COMPLAINT_STATUSES.ACKNOWLEDGED,
+        });
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('FORBIDDEN');
+    });
+  });
+
+  describe('PATCH /api/admin/complaints/:id (Triage & Assignment)', () => {
+    it('should assign a department and adjust priority successfully', async () => {
+      const res = await request(app)
+        .patch('/api/admin/complaints/FC-ADMIN-2')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          assignedDepartment: 'Plumbing & Water Supply',
+          priority: PRIORITIES.HIGH,
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.complaint.assignedDepartment).toBe('Plumbing & Water Supply');
+      expect(res.body.data.complaint.priority).toBe(PRIORITIES.HIGH);
+    });
+
+    it('should block a student from updating triage metadata (403 Forbidden)', async () => {
+      const res = await request(app)
+        .patch('/api/admin/complaints/FC-ADMIN-2')
+        .set('Authorization', `Bearer ${studentToken}`)
+        .send({
+          assignedDepartment: 'Student Union',
+        });
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('FORBIDDEN');
+    });
+  });
 });
 

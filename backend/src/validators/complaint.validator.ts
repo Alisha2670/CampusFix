@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CATEGORIES, PRIORITIES } from '../constants/enums.js';
+import { CATEGORIES, PRIORITIES, COMPLAINT_STATUSES } from '../constants/enums.js';
 
 export const createComplaintSchema = z.object({
   title: z
@@ -44,4 +44,45 @@ export const createComplaintSchema = z.object({
 });
 
 export type CreateComplaintInput = z.infer<typeof createComplaintSchema>;
+
+export const updateComplaintStatusSchema = z.object({
+  status: z.enum(
+    Object.values(COMPLAINT_STATUSES) as [string, ...string[]],
+    {
+      errorMap: () => ({
+        message: `Status must be one of: ${Object.values(COMPLAINT_STATUSES).join(', ')}`,
+      }),
+    }
+  ),
+  comment: z
+    .string()
+    .trim()
+    .max(500, 'Comment cannot exceed 500 characters')
+    .optional(),
+});
+
+export type UpdateComplaintStatusInput = z.infer<typeof updateComplaintStatusSchema>;
+
+export const adminUpdateComplaintSchema = z.object({
+  category: z
+    .enum(Object.values(CATEGORIES) as [string, ...string[]])
+    .optional(),
+  priority: z
+    .enum(Object.values(PRIORITIES) as [string, ...string[]])
+    .optional(),
+  assignedDepartment: z
+    .string()
+    .trim()
+    .max(100, 'Department name cannot exceed 100 characters')
+    .nullable()
+    .optional(),
+  duplicateOf: z
+    .string()
+    .trim()
+    .nullable()
+    .optional(),
+});
+
+export type AdminUpdateComplaintInput = z.infer<typeof adminUpdateComplaintSchema>;
+
 

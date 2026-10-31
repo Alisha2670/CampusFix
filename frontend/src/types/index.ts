@@ -74,6 +74,20 @@ export interface IComplaint {
   updatedAt: string;
 }
 
+export interface INotification {
+  id: string;
+  userId: string;
+  complaintId: {
+    id: string;
+    complaintId: string;
+    title: string;
+    status: ComplaintStatus;
+  } | string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;

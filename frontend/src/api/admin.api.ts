@@ -35,5 +35,33 @@ export const AdminApi = {
     );
     return res.data.data!;
   },
+
+  updateStatus: async (
+    id: string,
+    status: string,
+    comment?: string
+  ): Promise<IComplaint> => {
+    const res = await apiClient.patch<ApiResponse<{ complaint: IComplaint }>>(
+      `/admin/complaints/${id}/status`,
+      { status, comment }
+    );
+    return res.data.data!.complaint;
+  },
+
+  updateTriage: async (
+    id: string,
+    data: {
+      category?: string;
+      priority?: string;
+      assignedDepartment?: string | null;
+      duplicateOf?: string | null;
+    }
+  ): Promise<IComplaint> => {
+    const res = await apiClient.patch<ApiResponse<{ complaint: IComplaint }>>(
+      `/admin/complaints/${id}`,
+      data
+    );
+    return res.data.data!.complaint;
+  },
 };
 

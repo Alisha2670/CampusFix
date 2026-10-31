@@ -10,6 +10,8 @@ const router = Router();
 router.use(requireAuth, requireRole(ROLES.ADMIN));
 
 router.get('/complaints', AdminController.getAllComplaints);
+router.patch('/complaints/:id/status', AdminController.updateComplaintStatus);
+router.patch('/complaints/:id', AdminController.updateComplaintTriage);
 
 export default router;
 

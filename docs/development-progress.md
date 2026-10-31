@@ -131,3 +131,61 @@
   - Frontend Build: 1,672 modules transformed, 0 type errors, built cleanly in 4.26s (`tsc && vite build`)
 - **Next Day's Plan:**
   - Day 4: State Machine lifecycle transitions (`Submitted` $\to$ `Acknowledged` $\to$ `Assigned` $\to$ `In Progress` $\to$ `Resolved`), department assignment, in-app notification model and bell UI.
+
+---
+
+## Day 4 — Admin Triage, State Transitions & In-App Notifications
+
+### Objectives:
+- [x] Phase 4.1: State Machine & Transition Rules (`src/services/statemachine.service.ts`, `PATCH /api/admin/complaints/:id/status`, `PATCH /api/admin/complaints/:id`)
+- [x] Phase 4.2: In-App Notification System (`src/models/Notification.ts`, `src/services/notification.service.ts`, `GET /api/notifications`, `PATCH /api/notifications/:id/read`, `PATCH /api/notifications/read-all`)
+- [x] Phase 4.3: Frontend Notification UI & Triage Actions (`NotificationBell.tsx` with live badge dropdown, interactive transition and department assignment modal in `AdminDashboardPage.tsx`)
+- [x] Phase 4.4: Automated Testing & Verification (41/41 tests passing across 5 test suites; frontend production build 0 errors)
+- [ ] Day 4 Git Push (Awaiting user permission)
+
+---
+
+## Day 4 Audit Summary
+
+- **Completed Modules:**
+  - `backend/src/services/statemachine.service.ts`: Complaint lifecycle transition rules engine enforcing strict sequential progression from Submitted to Resolved.
+  - `backend/src/models/Notification.ts`: Mongoose schema with user reference, complaint reference, read status, and optimal index `{ userId: 1, isRead: 1, createdAt: -1 }`.
+  - `backend/src/services/notification.service.ts`: Automated notification dispatcher on status changes and department assignments.
+  - `backend/src/controllers/notification.controller.ts`: Endpoints for fetching notifications, single read with IDOR protection, and bulk read.
+  - `backend/src/routes/notification.routes.ts`: Secured with `requireAuth` and mounted at `/api/notifications`.
+  - `backend/tests/notification.test.ts`: Automated test suite for in-app alerts and notifications.
+  - `frontend/src/api/notification.api.ts`: Frontend client for notification retrieval and read status updates.
+  - `frontend/src/components/common/NotificationBell.tsx`: Interactive notification bell with unread count badge, real-time periodic polling, dropdown menu, and mark-all-read capability.
+  - `frontend/src/pages/admin/AdminDashboardPage.tsx`: Enhanced detail modal with state transition controller, audit note input, facility department selector, and priority/category updates.
+- **Files Created / Modified:**
+  - `backend/src/services/statemachine.service.ts`
+  - `backend/src/models/Notification.ts`
+  - `backend/src/services/notification.service.ts`
+  - `backend/src/controllers/notification.controller.ts`
+  - `backend/src/routes/notification.routes.ts`
+  - `backend/src/routes/admin.routes.ts`
+  - `backend/src/controllers/admin.controller.ts`
+  - `backend/src/validators/complaint.validator.ts`
+  - `backend/src/app.ts`
+  - `backend/tests/admin.test.ts`
+  - `backend/tests/notification.test.ts`
+  - `frontend/src/types/index.ts`
+  - `frontend/src/api/admin.api.ts`
+  - `frontend/src/api/notification.api.ts`
+  - `frontend/src/components/common/NotificationBell.tsx`
+  - `frontend/src/components/common/Navbar.tsx`
+  - `frontend/src/pages/admin/AdminDashboardPage.tsx`
+  - `TASK.md`
+  - `docs/development-progress.md`
+  - `docs/testing.md`
+- **APIs Implemented / Verified:**
+  - `PATCH /api/admin/complaints/:id/status` (Transitions complaint status via State Machine, appends to `statusHistory`, auto-notifies student)
+  - `PATCH /api/admin/complaints/:id` (Assigns facility department, priority, category, auto-notifies student)
+  - `GET /api/notifications` (Returns user's notifications and unreadCount)
+  - `PATCH /api/notifications/:id/read` (Marks single notification as read with IDOR protection)
+  - `PATCH /api/notifications/read-all` (Marks all unread notifications as read)
+- **Tests Executed & Actual Results:**
+  - Backend Tests: 41 passed, 0 failed (5 test suites in 8.43s)
+  - Frontend Build: 1,674 modules transformed, 0 type errors, built cleanly in 4.09s (`tsc && vite build`)
+- **Next Day's Plan:**
+  - Day 5: AI Microservice (FastAPI + SentenceTransformers `all-MiniLM-L6-v2` + duplicate cosine similarity + automated categorization + Node $\leftrightarrow$ FastAPI timeout resiliency).

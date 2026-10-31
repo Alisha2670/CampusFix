@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { ShieldCheck, User as UserIcon, LogOut, PlusCircle, LayoutDashboard } from 'lucide-react';
+import { NotificationBell } from './NotificationBell.js';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -61,6 +62,8 @@ export const Navbar: React.FC = () => {
                   <span>My Tickets</span>
                 </Link>
               )}
+
+              <NotificationBell />
 
               <div className="h-6 w-px bg-slate-200 mx-1" />
 

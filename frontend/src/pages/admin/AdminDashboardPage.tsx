@@ -43,6 +43,24 @@ const STATUSES: { label: string; value: string }[] = [
   { label: 'Rejected', value: 'Rejected' },
 ];
 
+const DEPARTMENTS = [
+  'Electrical Maintenance',
+  'Plumbing & Water Supply',
+  'IT & Network Infrastructure',
+  'Housekeeping & Sanitation',
+  'Civil & Campus Infrastructure',
+];
+
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  Submitted: ['Acknowledged', 'Duplicate', 'Rejected'],
+  Acknowledged: ['Assigned', 'Duplicate', 'Rejected'],
+  Assigned: ['In Progress', 'Duplicate', 'Rejected'],
+  'In Progress': ['Resolved', 'Duplicate', 'Rejected'],
+  Resolved: [],
+  Duplicate: [],
+  Rejected: [],
+};
+
 export const AdminDashboardPage: React.FC = () => {
   const [complaints, setComplaints] = useState<IComplaint[]>([]);
   const [total, setTotal] = useState(0);
@@ -59,6 +77,80 @@ export const AdminDashboardPage: React.FC = () => {
 
   // Modal Detail Review
   const [selectedComplaint, setSelectedComplaint] = useState<IComplaint | null>(null);
+
+  // Admin Actions State
+  const [transitionStatus, setTransitionStatus] = useState<string>('');
+  const [transitionComment, setTransitionComment] = useState<string>('');
+  const [editDepartment, setEditDepartment] = useState<string>('');
+  const [editPriority, setEditPriority] = useState<Priority>('Medium');
+  const [editCategory, setEditCategory] = useState<Category>('Electrical');
+  const [actionLoading, setActionLoading] = useState<boolean>(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedComplaint) {
+      const allowed = VALID_TRANSITIONS[selectedComplaint.status] || [];
+      setTransitionStatus(allowed[0] || '');
+      setTransitionComment('');
+      setEditDepartment(selectedComplaint.assignedDepartment || '');
+      setEditPriority(selectedComplaint.priority);
+      setEditCategory(selectedComplaint.category);
+      setActionError(null);
+      setActionSuccess(null);
+    }
+  }, [selectedComplaint]);
+
+  const handleStatusTransition = async () => {
+    if (!selectedComplaint || !transitionStatus) return;
+    try {
+      setActionLoading(true);
+      setActionError(null);
+      setActionSuccess(null);
+      const updated = await AdminApi.updateStatus(
+        selectedComplaint.id || selectedComplaint.complaintId,
+        transitionStatus,
+        transitionComment.trim() || undefined
+      );
+      setSelectedComplaint(updated);
+      setComplaints((prev) =>
+        prev.map((c) => (c.complaintId === updated.complaintId ? updated : c))
+      );
+      setActionSuccess(`Status successfully updated to "${transitionStatus}"! Student notified.`);
+      fetchComplaints();
+    } catch (err: any) {
+      setActionError(err.customMessage || 'Failed to transition status.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleTriageSave = async () => {
+    if (!selectedComplaint) return;
+    try {
+      setActionLoading(true);
+      setActionError(null);
+      setActionSuccess(null);
+      const updated = await AdminApi.updateTriage(
+        selectedComplaint.id || selectedComplaint.complaintId,
+        {
+          assignedDepartment: editDepartment.trim() || null,
+          priority: editPriority,
+          category: editCategory,
+        }
+      );
+      setSelectedComplaint(updated);
+      setComplaints((prev) =>
+        prev.map((c) => (c.complaintId === updated.complaintId ? updated : c))
+      );
+      setActionSuccess('Department & triage updated! Student notified.');
+      fetchComplaints();
+    } catch (err: any) {
+      setActionError(err.customMessage || 'Failed to update triage details.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const fetchComplaints = async () => {
     try {
@@ -519,6 +611,166 @@ export const AdminDashboardPage: React.FC = () => {
                     <strong>Suggested Urgency:</strong>{' '}
                     {selectedComplaint.aiAnalysis?.suggestedPriority || 'Standard'}
                   </p>
+                </div>
+              </div>
+
+              {/* Action Feedback Messages */}
+              {actionError && (
+                <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{actionError}</span>
+                </div>
+              )}
+
+              {actionSuccess && (
+                <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                  <span>{actionSuccess}</span>
+                </div>
+              )}
+
+              {/* Admin Workflow Action Controls */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {/* 1. State Machine Transition Card */}
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-brand-600" />
+                      Lifecycle Transition
+                    </span>
+
+                    {VALID_TRANSITIONS[selectedComplaint.status]?.length > 0 ? (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                            Next Permitted State:
+                          </label>
+                          <select
+                            value={transitionStatus}
+                            onChange={(e) => setTransitionStatus(e.target.value)}
+                            className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-500 font-medium"
+                          >
+                            {VALID_TRANSITIONS[selectedComplaint.status].map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                            Audit Note / Dispatch Comment:
+                          </label>
+                          <input
+                            type="text"
+                            value={transitionComment}
+                            onChange={(e) => setTransitionComment(e.target.value)}
+                            placeholder="e.g., Dispatched plumbing crew"
+                            className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-500"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-slate-100 rounded-lg text-xs text-slate-500 italic">
+                        Ticket is in a terminal state ({selectedComplaint.status}). No further transitions are permitted.
+                      </div>
+                    )}
+                  </div>
+
+                  {VALID_TRANSITIONS[selectedComplaint.status]?.length > 0 && (
+                    <button
+                      onClick={handleStatusTransition}
+                      disabled={actionLoading}
+                      className="mt-4 w-full py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+                    >
+                      {actionLoading ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                      )}
+                      <span>Advance Status</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* 2. Department Assignment & Triage Card */}
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2 flex items-center gap-1.5">
+                      <ClipboardList className="w-3.5 h-3.5 text-brand-600" />
+                      Department & Triage
+                    </span>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                          Assigned Department:
+                        </label>
+                        <select
+                          value={editDepartment}
+                          onChange={(e) => setEditDepartment(e.target.value)}
+                          className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-500 font-medium"
+                        >
+                          <option value="">Unassigned</option>
+                          {DEPARTMENTS.map((d) => (
+                            <option key={d} value={d}>
+                              {d}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                            Category:
+                          </label>
+                          <select
+                            value={editCategory}
+                            onChange={(e) => setEditCategory(e.target.value as Category)}
+                            className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-500"
+                          >
+                            {CATEGORIES.map((c) => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                            Priority:
+                          </label>
+                          <select
+                            value={editPriority}
+                            onChange={(e) => setEditPriority(e.target.value as Priority)}
+                            className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-500"
+                          >
+                            {PRIORITIES.map((p) => (
+                              <option key={p} value={p}>
+                                {p}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleTriageSave}
+                    disabled={actionLoading}
+                    className="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+                  >
+                    {actionLoading ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <ClipboardList className="w-3.5 h-3.5" />
+                    )}
+                    <span>Save Triage Details</span>
+                  </button>
                 </div>
               </div>
 

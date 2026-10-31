@@ -66,4 +66,25 @@ No module is marked complete until all applicable tests pass and actual executio
 **Frontend Verification: `npm run build`**
 - [x] Vite React TypeScript build: 1,672 modules transformed, zero type errors, production bundle generated in 4.26s (PASSED)
 
-**Cumulative Summary:** 4 Test Suites Passed, 29 Total Automated Tests Passed, 0 Failed.
+### Day 4: Admin Triage, State Transitions & In-App Notifications (Executed: 2026-10-31)
+
+**Updated Suite 4: `tests/admin.test.ts` (Phases 4.1, 4.4)**
+- [x] `PATCH /api/admin/complaints/:id/status` transitions status from Submitted to Acknowledged and appends to `statusHistory` (PASSED - 30ms)
+- [x] `PATCH /api/admin/complaints/:id/status` rejects illegal state machine jump (e.g. Submitted -> Resolved) with 400 INVALID_STATUS_TRANSITION (PASSED - 19ms)
+- [x] `PATCH /api/admin/complaints/:id/status` prevents transitioning out of terminal state Resolved (PASSED - 10ms)
+- [x] `PATCH /api/admin/complaints/:id/status` blocks regular student from changing status (403 FORBIDDEN) (PASSED - 8ms)
+- [x] `PATCH /api/admin/complaints/:id` assigns department and adjusts priority (PASSED - 24ms)
+- [x] `PATCH /api/admin/complaints/:id` blocks student from updating triage metadata (403 FORBIDDEN) (PASSED - 8ms)
+
+**Test Suite 5: `tests/notification.test.ts` (Phases 4.2, 4.4)**
+- [x] Auto-creates notification for student when admin updates complaint status (PASSED - 88ms)
+- [x] Auto-creates notification for student when admin assigns a department (PASSED - 57ms)
+- [x] `PATCH /api/notifications/:id/read` marks a single notification as read (PASSED - 49ms)
+- [x] `PATCH /api/notifications/:id/read` blocks another student from reading notifications (IDOR Defense: 404 NOT_FOUND) (PASSED - 27ms)
+- [x] `PATCH /api/notifications/read-all` marks all unread notifications as read in bulk (PASSED - 52ms)
+- [x] Blocks unauthenticated access to notification endpoints (401 UNAUTHORIZED) (PASSED - 12ms)
+
+**Frontend Verification: `npm run build`**
+- [x] Vite React TypeScript build: 1,674 modules transformed, zero type errors, production bundle generated in 4.09s (PASSED)
+
+**Cumulative Summary:** 5 Test Suites Passed, 41 Total Automated Tests Passed, 0 Failed.
