@@ -7,6 +7,7 @@ import { RegisterPage } from './pages/auth/RegisterPage.js';
 import { SubmitComplaintPage } from './pages/SubmitComplaintPage.js';
 import { MyComplaintsPage } from './pages/MyComplaintsPage.js';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage.js';
+import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage.js';
 import { Loader2 } from 'lucide-react';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -78,6 +79,14 @@ export const App: React.FC = () => {
             element={
               <AdminRoute>
                 <AdminDashboardPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/analytics"
+            element={
+              <AdminRoute>
+                <AdminAnalyticsPage />
               </AdminRoute>
             }
           />

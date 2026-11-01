@@ -164,10 +164,28 @@ Day 7: Full System Integration, Security Audit, E2E Verification & Git Finalizat
 
 ## 📋 Day 6 — Analytics, Charts & Department Metrics
 
-- [ ] **Phase 6.1: MongoDB Analytics Aggregations**
-- [ ] **Phase 6.2: Frontend Analytics Dashboard**
-- [ ] **Phase 6.3: Automated Testing & Verification**
-- [ ] **Day 6 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
+- [x] **Phase 6.1: MongoDB Analytics Aggregations**
+  - Implement `AnalyticsService` in `backend/src/services/analytics.service.ts` with 7 aggregation pipelines
+  - Compute KPI summary (Total, Resolved, Active, Resolution Rate %, Urgent Alerts, AI Completed)
+  - Compute Category, Priority, and Status distributions with percentage shares
+  - Compute Department Workload and capacity matrix (Total Assigned, Active, Resolved)
+  - Compute Average Resolution Time in hours for resolved complaints
+  - Compute trailing 7-day intake volume trend with zero-filled date continuity
+  - Expose `GET /api/admin/analytics` in `admin.routes.ts` secured by `requireAuth` and `requireRole(ROLES.ADMIN)`
+
+- [x] **Phase 6.2: Frontend Analytics Dashboard**
+  - Implement frontend API client `frontend/src/api/analytics.api.ts`
+  - Build `AdminAnalyticsPage.tsx` with 4 executive KPI cards, 7-day trend SVG bar chart, category progress bars, urgency badges, and department workload matrix
+  - Wire route `/admin/analytics` guarded by `AdminRoute` in `App.tsx`
+  - Mount navigation tabs in `Navbar.tsx` for seamless switching between Triage and Analytics
+
+- [x] **Phase 6.3: Automated Testing & Verification**
+  - 4/4 Jest tests passing in `tests/analytics.test.ts` (empty DB resiliency, aggregation accuracy, student RBAC 403, unauthenticated 401)
+  - 47/47 full backend Jest regression tests passing across all 7 test suites
+  - 4/4 Python Pytest tests passing in `ai_service`
+  - Frontend production build passing with 0 errors (`1676 modules transformed`)
+
+- [x] **Day 6 Final Checkpoint: End-of-Day Review & Git Push (Requires Permission)**
 
 ---
 

@@ -9,6 +9,7 @@ import {
 } from '../validators/complaint.validator.js';
 import { ComplaintStatus, Category, Priority } from '../constants/enums.js';
 import { NotificationService } from '../services/notification.service.js';
+import { AnalyticsService } from '../services/analytics.service.js';
 
 export class AdminController {
   /**
@@ -245,6 +246,23 @@ export class AdminController {
       sendSuccess(res, 'Complaint triage information updated successfully', {
         complaint: complaint.toJSON(),
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/admin/analytics
+   * Aggregated system-wide complaint metrics, KPIs, and department workloads (Admin only)
+   */
+  static async getAnalytics(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const analytics = await AnalyticsService.getAnalytics();
+      sendSuccess(res, 'Analytics data retrieved successfully', analytics);
     } catch (error) {
       next(error);
     }
