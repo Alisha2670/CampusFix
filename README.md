@@ -67,7 +67,7 @@ The platform follows a decoupled, resilient microservice-inspired architecture:
 | **API Coordinator (Backend)** | Node.js, Express.js, TypeScript, Mongoose, Zod, Bcrypt.js, Multer | RESTful API gateway, authentication, RBAC authorization, state machine, and data persistence |
 | **AI Microservice** | Python 3.12, FastAPI, Uvicorn, SentenceTransformers (`all-MiniLM-L6-v2`), Scikit-learn, NumPy | Vector embeddings, 384-dimensional cosine similarity scoring, and NLP safety hazard classification |
 | **Database & CDN** | MongoDB Atlas, Cloudinary CDN | Cloud NoSQL persistence with compound indexes; image optimization and global CDN delivery |
-| **Testing & QA** | Jest, Supertest, `mongodb-memory-server`, Pytest, HTTPX, TypeScript (`tsc`) | 63 backend integration/security tests, 4 Pytest unit tests, and production type checking |
+| **Testing & QA** | Jest, Supertest, `mongodb-memory-server`, Pytest, HTTPX, TypeScript (`tsc`) | 75 backend integration/security tests, 4 Pytest unit tests, and production type checking |
 
 ---
 
@@ -107,6 +107,12 @@ $$\text{Submitted} \longrightarrow \text{Acknowledged} \longrightarrow \text{Ass
 - **Insecure Direct Object Reference (IDOR) Defense:** Students can strictly only view their own private tickets; cross-student ticket requests return `403 Forbidden`.
 - **Privilege Escalation Defense:** Zod schemas and backend services strictly strip and ignore any attempted `role: "admin"` injection during registration.
 - **Role-Based Access Control (RBAC):** Administrative triage and analytics routes reject non-admin sessions with `403 Forbidden`.
+
+### 6. 👍 Crowdsourced Issue Upvoting & Campus Live Feed ("Me Too / +1")
+- **Queue Congestion Prevention:** When students discover an existing complaint in a shared facility (e.g. broken AC in Library), they can click **"Me Too (+1)"** instead of submitting a duplicate ticket.
+- **Atomic MongoDB Operations:** Toggle upvotes utilize atomic `$addToSet` and `$pull` operators paired with `$inc`, preventing race conditions and double-voting.
+- **Privacy-Preserving Public Board:** Reporter personal identifiers (email, phone) are strictly omitted from the public community feed (`/feed`), revealing only the author's public name while preserving student privacy.
+- **Admin Triage Prioritization:** Administrators can sort incoming tickets by **Most Upvoted** to instantly identify campus bottlenecks impacting tens of students.
 
 ---
 
@@ -194,10 +200,10 @@ Open **`http://localhost:5173`** in your browser!
 
 ## 🧪 Test Verification Matrix
 
-FixMyCampus is verified through **67 automated test cases** across unit, integration, and security layers:
+FixMyCampus is verified through **79 automated test cases** across unit, integration, and security layers:
 
 ```bash
-# Run all 63 Node.js backend tests (Jest)
+# Run all 75 Node.js backend tests (Jest)
 cd backend
 npm test
 
@@ -221,9 +227,10 @@ npm run build
 | `tests/analytics.test.ts` | Jest | 4 | **PASS** | Aggregation accuracy, empty database resiliency, RBAC 403 blocks |
 | `tests/e2e.test.ts` | Jest | 8 | **PASS** | Master lifecycle journey from registration to resolution & analytics |
 | `tests/security.test.ts` | Jest | 8 | **PASS** | Tampered JWTs, expired tokens, privilege escalation, IDOR defenses |
+| `tests/upvote.test.ts` | Jest | 12 | **PASS** | Atomic upvotes, toggle logic, campus feed sorting & privacy controls |
 | `tests/health.test.ts` | Jest | 2 | **PASS** | Health probe (`200 OK`) and 404 catch-all |
 | `ai_service/tests/` | Pytest | 4 | **PASS** | Model lifespan loading, 384-d cosine similarity, NLP hazard classifier |
-| **Total Test Coverage** | | **67 / 67** | **100%** | Zero failing tests |
+| **Total Test Coverage** | | **79 / 79** | **100%** | Zero failing tests |
 
 ---
 

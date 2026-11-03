@@ -102,5 +102,143 @@ export class ComplaintService {
       pages: Math.ceil(total / limit) || 1,
     };
   }
+
+  /**
+   * Toggle student upvote ("Me Too / +1") on a complaint atomically
+   */
+  static async toggleUpvote(
+    complaintId: string,
+    studentId: string
+  ): Promise<{ complaintId: string; upvoteCount: number; hasUpvoted: boolean } | null> {
+    const studentObjectId = new Types.ObjectId(studentId);
+    const query = Types.ObjectId.isValid(complaintId)
+      ? { _id: complaintId }
+      : { complaintId };
+
+    const complaint = await Complaint.findOne(query);
+    if (!complaint) {
+      return null;
+    }
+
+    const alreadyUpvoted = (complaint.upvotes || []).some(
+      (id) => id.toString() === studentId
+    );
+
+    let updatedDoc;
+    if (alreadyUpvoted) {
+      // Pull student and decrement atomically
+      updatedDoc = await Complaint.findOneAndUpdate(
+        query,
+        {
+          $pull: { upvotes: studentObjectId },
+          $inc: { upvoteCount: -1 },
+        },
+        { new: true }
+      );
+    } else {
+      // Add student and increment atomically
+      updatedDoc = await Complaint.findOneAndUpdate(
+        query,
+        {
+          $addToSet: { upvotes: studentObjectId },
+          $inc: { upvoteCount: 1 },
+        },
+        { new: true }
+      );
+    }
+
+    const finalCount = Math.max(0, updatedDoc?.upvoteCount ?? 0);
+    return {
+      complaintId: updatedDoc?.complaintId || complaint.complaintId,
+      upvoteCount: finalCount,
+      hasUpvoted: !alreadyUpvoted,
+    };
+  }
+
+  /**
+   * Get public community campus feed with upvote status and crowd validation
+   */
+  static async getCampusFeed(
+    params: {
+      building?: string;
+      category?: string;
+      status?: string;
+      sort?: string;
+      page?: number;
+      limit?: number;
+    },
+    studentId?: string
+  ): Promise<{
+    complaints: any[];
+    total: number;
+    pages: number;
+    page: number;
+  }> {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.max(1, Math.min(50, params.limit || 10));
+    const skip = (page - 1) * limit;
+
+    const query: any = {};
+
+    // By default, show active non-rejected complaints
+    if (params.status && params.status !== 'all') {
+      query.status = params.status;
+    } else if (!params.status) {
+      query.status = {
+        $in: [
+          COMPLAINT_STATUSES.SUBMITTED,
+          COMPLAINT_STATUSES.ACKNOWLEDGED,
+          COMPLAINT_STATUSES.ASSIGNED,
+          COMPLAINT_STATUSES.IN_PROGRESS,
+        ],
+      };
+    }
+
+    if (params.building && params.building !== 'all') {
+      query['location.building'] = {
+        $regex: params.building,
+        $options: 'i',
+      };
+    }
+
+    if (params.category && params.category !== 'all') {
+      query.category = params.category;
+    }
+
+    let sortOptions: any = { upvoteCount: -1, createdAt: -1 };
+    if (params.sort === 'newest') {
+      sortOptions = { createdAt: -1 };
+    } else if (params.sort === 'mostUpvoted') {
+      sortOptions = { upvoteCount: -1, createdAt: -1 };
+    }
+
+    const [complaints, total] = await Promise.all([
+      Complaint.find(query)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limit)
+        .populate('studentId', 'name'), // Privacy: only expose student name, never email/phone
+      Complaint.countDocuments(query),
+    ]);
+
+    const feedItems = complaints.map((doc) => {
+      const { upvotes: _upvotes, ...rest } = doc.toJSON() as Record<string, any>;
+      const hasUpvoted = studentId
+        ? (doc.upvotes || []).some((id) => id.toString() === studentId)
+        : false;
+      return {
+        ...rest,
+        upvoteCount: doc.upvoteCount || 0,
+        hasUpvoted,
+      };
+    });
+
+    return {
+      complaints: feedItems,
+      total,
+      pages: Math.ceil(total / limit) || 1,
+      page,
+    };
+  }
 }
 

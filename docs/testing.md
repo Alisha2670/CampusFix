@@ -176,3 +176,29 @@ No module is marked complete until all applicable tests pass and actual executio
 - [x] Vite React TypeScript build: 1,676 modules transformed, zero type errors, production bundle generated cleanly (PASSED)
 
 **Final Cumulative Summary:** 9 Backend Test Suites (63 Tests) + 1 Python Pytest Suite (4 Tests) = 67 Total Tests Passed, 0 Failed. 100% Green Verification.
+
+---
+
+### Feature Extension: Student Upvoting & Campus Community Feed ("Me Too / +1") (Executed: 2026-11-03)
+
+**Test Suite 11 (Node.js Jest): `tests/upvote.test.ts` (Phases 8.1, 8.2)**
+- [x] Upvote toggle: allows a student to upvote a complaint and increment `upvoteCount` atomically (PASSED - 95ms)
+- [x] Upvote untoggle: allows toggling off an upvote when clicked again (PASSED - 75ms)
+- [x] Multi-student upvoting: supports multiple distinct students upvoting the same complaint (PASSED - 43ms)
+- [x] 404 handling: returns 404 when upvoting a non-existent complaint (PASSED - 14ms)
+- [x] RBAC enforcement: blocks non-students (e.g. Admin) from upvoting with 403 FORBIDDEN (PASSED - 19ms)
+- [x] Auth enforcement: rejects unauthenticated upvote requests with 401 UNAUTHORIZED (PASSED - 11ms)
+- [x] Feed retrieval: returns active complaints sorted by `mostUpvoted` by default (PASSED - 55ms)
+- [x] Personalized state: indicates whether the requesting student has upvoted each complaint (`hasUpvoted: true/false`) (PASSED - 40ms)
+- [x] Reporter privacy: protects student privacy in public feed by omitting email and phone numbers (PASSED - 40ms)
+- [x] Multi-filtering: filters feed by building and category accurately (PASSED - 40ms)
+- [x] Sort selector: allows sorting by newest (`createdAt: -1`) (PASSED - 39ms)
+- [x] Feed security: rejects unauthenticated requests to feed with 401 UNAUTHORIZED (PASSED - 29ms)
+
+**Full Backend Regression (All 10 Suites): `npm test`**
+- [x] Total: **75/75 tests passing across 10 test suites in 22.76s (100% GREEN)**.
+
+**Frontend Verification: `npm run build`**
+- [x] Vite React TypeScript build: 1,677 modules transformed, zero type errors, production bundle generated cleanly in 6.64s (PASSED)
+
+**Final Cumulative Platform Matrix:** 10 Backend Test Suites (75 Tests) + 1 Python Pytest Suite (4 Tests) = **79 Total Tests Passed, 0 Failed. 100% Green Verification.**

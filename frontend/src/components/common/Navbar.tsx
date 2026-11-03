@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
-import { ShieldCheck, User as UserIcon, LogOut, PlusCircle, LayoutDashboard, BarChart3 } from 'lucide-react';
+import { ShieldCheck, User as UserIcon, LogOut, PlusCircle, LayoutDashboard, BarChart3, Flame } from 'lucide-react';
 import { NotificationBell } from './NotificationBell.js';
 
 export const Navbar: React.FC = () => {
@@ -61,15 +61,31 @@ export const Navbar: React.FC = () => {
                     <BarChart3 className="w-4 h-4 text-indigo-600" />
                     <span>Analytics</span>
                   </Link>
+                  <Link
+                    to="/feed"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-sm font-medium transition"
+                  >
+                    <Flame className="w-4 h-4 text-amber-500" />
+                    <span>Campus Feed</span>
+                  </Link>
                 </>
               ) : (
-                <Link
-                  to="/my-complaints"
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-sm font-medium transition"
-                >
-                  <LayoutDashboard className="w-4 h-4 text-brand-600" />
-                  <span>My Tickets</span>
-                </Link>
+                <>
+                  <Link
+                    to="/feed"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-sm font-medium transition"
+                  >
+                    <Flame className="w-4 h-4 text-amber-500" />
+                    <span>Campus Feed</span>
+                  </Link>
+                  <Link
+                    to="/my-complaints"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-sm font-medium transition"
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-brand-600" />
+                    <span>My Tickets</span>
+                  </Link>
+                </>
               )}
 
               <NotificationBell />

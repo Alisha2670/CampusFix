@@ -24,6 +24,21 @@ router.get(
   ComplaintController.getMyComplaints
 );
 
+// Community Campus Feed (Open to authenticated students and staff, placed BEFORE /:id)
+router.get(
+  '/feed',
+  requireAuth,
+  ComplaintController.getCampusFeed
+);
+
+// Student only: toggle upvote ("Me Too / +1") on a complaint
+router.post(
+  '/:id/upvote',
+  requireAuth,
+  requireRole(ROLES.STUDENT),
+  ComplaintController.toggleUpvote
+);
+
 // Owner or Admin: view single complaint details
 router.get(
   '/:id',

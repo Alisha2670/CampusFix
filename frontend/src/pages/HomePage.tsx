@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
 import { Navbar } from '../components/common/Navbar.js';
-import { PlusCircle, Search, Sparkles, Clock, CheckCircle } from 'lucide-react';
+import { PlusCircle, Search, Sparkles, Clock, CheckCircle, Flame } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
   const { user } = useAuth();
@@ -33,6 +33,13 @@ export const HomePage: React.FC = () => {
               >
                 <PlusCircle className="w-5 h-5 text-brand-500" />
                 <span>Report an Issue</span>
+              </Link>
+              <Link
+                to="/feed"
+                className="px-6 py-3.5 bg-brand-700/60 hover:bg-brand-700 text-white font-semibold rounded-xl border border-white/20 transition flex items-center gap-2 backdrop-blur"
+              >
+                <Flame className="w-5 h-5 text-amber-300" />
+                <span>Campus Feed (+1)</span>
               </Link>
               {user ? (
                 <Link

@@ -215,6 +215,31 @@ Day 7: Full System Integration, Security Audit, E2E Verification & Git Finalizat
 
 ---
 
+## 🌟 Feature Extension — Student Upvoting & Campus Community Feed ("Me Too / +1")
+
+- [x] **Phase 8.1: Backend Data Model & Atomic Operations**
+  - Updated `Complaint` schema with `upvotes: Types.ObjectId[]` and `upvoteCount: number` (indexed)
+  - Compound indexes added for performant feed sorting: `{ status: 1, upvoteCount: -1 }`
+  - Atomic toggle upvote implementation using MongoDB `$addToSet`, `$pull`, and `$inc` to guarantee race-condition-free voting
+  - Privacy-preserving Campus Feed API (`GET /api/complaints/feed`) with author anonymization (omitting emails/phone numbers)
+
+- [x] **Phase 8.2: Automated Test Coverage**
+  - Built dedicated `backend/tests/upvote.test.ts` (12/12 tests passing)
+  - Verified toggle behavior (incrementing/decrementing), multi-student voting, and 404 handling
+  - Verified RBAC boundaries (non-students blocked with 403 Forbidden)
+  - Verified feed sorting (`mostUpvoted` vs `newest`), building/category filtering, and reporter privacy
+  - Full backend regression suite: **75/75 tests passing across all 10 test suites (100% green)**
+
+- [x] **Phase 8.3: Frontend UI & Community Experience**
+  - Built `CampusFeedPage.tsx` with filter dropdowns (Building, Category), Sort toggle (🔥 Most Upvoted vs ⏱️ Newest), and status pills
+  - Interactive "👍 Me Too (+1)" upvote button with optimistic UI state updates and feedback toasts
+  - Added "Campus Feed" navigation link in `Navbar.tsx` for students and administrators
+  - Updated `HomePage.tsx` hero section with direct call-to-action for the live feed
+  - Integrated Upvote badges and "Sort by Most Upvoted" in `AdminDashboardPage.tsx`
+  - Verified frontend production build (`tsc && vite build` clean with 0 errors)
+
+---
+
 ## 🛡️ Operating Rules for This Project
 
 1. **Explain First:** Every action, module, or code modification is explained before execution.

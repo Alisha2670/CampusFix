@@ -68,6 +68,9 @@ export interface IComplaint {
   status: ComplaintStatus;
   assignedDepartment: string | null;
   duplicateOf: string | null;
+  upvotes?: string[];
+  upvoteCount?: number;
+  hasUpvoted?: boolean;
   aiAnalysis: IAiAnalysis;
   statusHistory: IStatusHistoryItem[];
   createdAt: string;

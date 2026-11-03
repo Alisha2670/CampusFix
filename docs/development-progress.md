@@ -330,3 +330,51 @@
   - Total Cumulative Verification: **67 / 67 automated tests passed (100% Green)**.
 - **Release Status:**
   - FixMyCampus 7-Day Master Architectural Contract is **100% Complete & Verified**. Ready for final release commit and push.
+
+---
+
+## Feature Extension — Student Upvoting & Campus Community Feed ("Me Too / +1")
+
+### Objectives:
+- [x] Phase 8.1: Backend Data Model & Atomic Operations (`backend/src/models/Complaint.ts`, `backend/src/services/complaint.service.ts`, `backend/src/controllers/complaint.controller.ts`, `backend/src/routes/complaint.routes.ts`)
+- [x] Phase 8.2: Automated Test Coverage (`backend/tests/upvote.test.ts` - 12/12 tests passed; atomic toggle, duplicate prevention, feed sorting, RBAC & privacy)
+- [x] Phase 8.3: Frontend UI & Community Experience (`frontend/src/pages/CampusFeedPage.tsx`, `frontend/src/components/common/Navbar.tsx`, `frontend/src/pages/admin/AdminDashboardPage.tsx`, `frontend/src/App.tsx`)
+
+---
+
+## Feature Extension Audit Summary
+
+- **Completed Modules:**
+  - `backend/src/models/Complaint.ts`: Embedded `upvotes: Types.ObjectId[]` and `upvoteCount: number` with compound indexes (`{ status: 1, upvoteCount: -1 }`).
+  - `backend/src/services/complaint.service.ts`: Implemented `toggleUpvote` using atomic MongoDB `$addToSet`, `$pull`, and `$inc` operators to eliminate race conditions. Implemented `getCampusFeed` with filtering by building/category and sorting by `mostUpvoted` or `newest`.
+  - `backend/src/controllers/complaint.controller.ts` & `complaint.routes.ts`: Mounted `POST /api/complaints/:id/upvote` (student only) and `GET /api/complaints/feed` (placed before `/:id`).
+  - `backend/src/controllers/admin.controller.ts`: Added support for sorting by `mostUpvoted` in admin complaints query.
+  - `backend/tests/upvote.test.ts`: 12 automated tests verifying atomic toggle, multi-student voting, RBAC restrictions, privacy defenses (author email/phone hidden), building/category filters, and sorting.
+  - `frontend/src/pages/CampusFeedPage.tsx`: Built interactive campus feed with filter dropdowns, sorting toggles, photo modals, and optimistic "👍 Me Too (+1)" upvote button.
+  - `frontend/src/components/common/Navbar.tsx`: Added Campus Feed navigation item with flame icon for students and admins.
+  - `frontend/src/pages/admin/AdminDashboardPage.tsx`: Added Community Votes column, upvotes badge in modal, and "Sort by Most Upvoted" filter.
+  - `frontend/src/pages/HomePage.tsx`: Added direct link to the Campus Feed in the hero section.
+- **Files Created / Modified:**
+  - `backend/src/models/Complaint.ts`
+  - `backend/src/services/complaint.service.ts`
+  - `backend/src/controllers/complaint.controller.ts`
+  - `backend/src/routes/complaint.routes.ts`
+  - `backend/src/controllers/admin.controller.ts`
+  - `backend/tests/upvote.test.ts`
+  - `frontend/src/types/index.ts`
+  - `frontend/src/api/complaint.api.ts`
+  - `frontend/src/api/admin.api.ts`
+  - `frontend/src/pages/CampusFeedPage.tsx`
+  - `frontend/src/pages/HomePage.tsx`
+  - `frontend/src/pages/admin/AdminDashboardPage.tsx`
+  - `frontend/src/components/common/Navbar.tsx`
+  - `frontend/src/App.tsx`
+  - `TASK.md`
+  - `docs/testing.md`
+  - `docs/development-progress.md`
+- **Tests Executed & Actual Results:**
+  - Upvote & Feed Test Suite: 12 passed, 0 failed in 4.02s (`tests/upvote.test.ts`)
+  - Full Backend Regression: 75 passed, 0 failed across all 10 test suites in 22.76s (`npm test`)
+  - Python AI Tests: 4 passed, 0 failed in 14.02s (`pytest tests -v`)
+  - Frontend Production Build: 1,677 modules transformed, 0 type errors, clean production bundle in 6.64s (`tsc && vite build`)
+  - Total Cumulative Verification: **79 / 79 automated tests passed (100% Green)**.

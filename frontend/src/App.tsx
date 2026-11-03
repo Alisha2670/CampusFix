@@ -6,6 +6,7 @@ import { LoginPage } from './pages/auth/LoginPage.js';
 import { RegisterPage } from './pages/auth/RegisterPage.js';
 import { SubmitComplaintPage } from './pages/SubmitComplaintPage.js';
 import { MyComplaintsPage } from './pages/MyComplaintsPage.js';
+import { CampusFeedPage } from './pages/CampusFeedPage.js';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage.js';
 import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage.js';
 import { Loader2 } from 'lucide-react';
@@ -71,6 +72,14 @@ export const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <MyComplaintsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/feed"
+            element={
+              <ProtectedRoute>
+                <CampusFeedPage />
               </ProtectedRoute>
             }
           />

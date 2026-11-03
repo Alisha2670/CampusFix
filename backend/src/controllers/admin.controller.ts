@@ -28,6 +28,7 @@ export class AdminController {
         priority,
         building,
         search,
+        sort,
         page = '1',
         limit = '10',
       } = req.query;
@@ -63,10 +64,15 @@ export class AdminController {
         query.$or = [{ complaintId: searchRegex }, { title: searchRegex }];
       }
 
+      let sortOptions: any = { createdAt: -1 };
+      if (sort === 'mostUpvoted' || sort === 'upvotes') {
+        sortOptions = { upvoteCount: -1, createdAt: -1 };
+      }
+
       // Execute query with sorting, pagination, and population
       const [complaints, total] = await Promise.all([
         Complaint.find(query)
-          .sort({ createdAt: -1 })
+          .sort(sortOptions)
           .skip(skip)
           .limit(limitNum)
           .populate('studentId', 'name email role'),

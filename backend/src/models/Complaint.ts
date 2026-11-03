@@ -49,6 +49,8 @@ export interface IComplaint {
   status: ComplaintStatus;
   assignedDepartment: string | null;
   duplicateOf: Types.ObjectId | null;
+  upvotes?: Types.ObjectId[];
+  upvoteCount?: number;
   aiAnalysis: IAiAnalysis;
   statusHistory: IStatusHistoryItem[];
   createdAt: Date;
@@ -202,6 +204,17 @@ const complaintSchema = new Schema<IComplaintDocument, IComplaintModel>(
       ref: 'Complaint',
       default: null,
     },
+    upvotes: {
+      type: [Schema.Types.ObjectId],
+      ref: 'User',
+      default: [],
+    },
+    upvoteCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+      index: true,
+    },
     aiAnalysis: {
       type: aiAnalysisSchema,
       default: () => ({
@@ -235,6 +248,8 @@ const complaintSchema = new Schema<IComplaintDocument, IComplaintModel>(
 complaintSchema.index({ studentId: 1, createdAt: -1 });
 complaintSchema.index({ status: 1, category: 1, priority: 1 });
 complaintSchema.index({ 'location.building': 1, category: 1 });
+complaintSchema.index({ status: 1, upvoteCount: -1 });
+complaintSchema.index({ status: 1, createdAt: -1 });
 
 // Helper to generate a human-friendly complaint identifier (e.g. FC-1024)
 complaintSchema.statics.generateComplaintId = async function (): Promise<string> {

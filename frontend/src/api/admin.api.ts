@@ -6,6 +6,7 @@ export interface AdminComplaintsParams {
   category?: string;
   priority?: string;
   search?: string;
+  sort?: string;
   page?: number;
   limit?: number;
 }
@@ -27,6 +28,7 @@ export const AdminApi = {
     if (params.category && params.category !== 'all') query.append('category', params.category);
     if (params.priority && params.priority !== 'all') query.append('priority', params.priority);
     if (params.search) query.append('search', params.search);
+    if (params.sort) query.append('sort', params.sort);
     if (params.page) query.append('page', params.page.toString());
     if (params.limit) query.append('limit', params.limit.toString());
 

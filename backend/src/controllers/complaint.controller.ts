@@ -124,4 +124,79 @@ export class ComplaintController {
       next(error);
     }
   }
+
+  /**
+   * POST /api/complaints/:id/upvote
+   * Toggle student upvote / "Me Too (+1)" on an issue
+   */
+  static async toggleUpvote(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!req.user) {
+        sendError(res, 'Authentication required', 'UNAUTHORIZED', 401);
+        return;
+      }
+
+      const complaintIdParam = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+
+      const result = await ComplaintService.toggleUpvote(
+        complaintIdParam,
+        req.user.id
+      );
+
+      if (!result) {
+        sendError(res, 'Complaint not found', 'NOT_FOUND', 404);
+        return;
+      }
+
+      sendSuccess(
+        res,
+        result.hasUpvoted ? 'Upvote registered successfully' : 'Upvote removed',
+        result,
+        200
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/complaints/feed
+   * Retrieve community campus feed with public visibility and crowd validation
+   */
+  static async getCampusFeed(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!req.user) {
+        sendError(res, 'Authentication required', 'UNAUTHORIZED', 401);
+        return;
+      }
+
+      const { building, category, status, sort, page, limit } = req.query;
+
+      const result = await ComplaintService.getCampusFeed(
+        {
+          building: building as string | undefined,
+          category: category as string | undefined,
+          status: status as string | undefined,
+          sort: sort as string | undefined,
+          page: page ? parseInt(page as string, 10) : undefined,
+          limit: limit ? parseInt(limit as string, 10) : undefined,
+        },
+        req.user.id
+      );
+
+      sendSuccess(res, 'Campus feed retrieved successfully', result);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
