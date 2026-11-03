@@ -15,6 +15,13 @@ export const AuthApi = {
     return res.data.data!.user;
   },
 
+  googleAuth: async (credential: string): Promise<IUser> => {
+    const res = await apiClient.post<ApiResponse<{ user: IUser }>>('/auth/google', {
+      credential,
+    });
+    return res.data.data!.user;
+  },
+
   register: async (name: string, email: string, password: string): Promise<IUser> => {
     const res = await apiClient.post<ApiResponse<{ user: IUser }>>('/auth/register', {
       name,
@@ -26,6 +33,25 @@ export const AuthApi = {
 
   logout: async (): Promise<void> => {
     await apiClient.post('/auth/logout');
+  },
+
+  forgotPassword: async (email: string): Promise<{ message: string; resetUrl?: string; token?: string }> => {
+    const res = await apiClient.post<ApiResponse<{ resetUrl?: string; token?: string }>>('/auth/forgot-password', {
+      email,
+    });
+    return {
+      message: res.data.message,
+      resetUrl: res.data.data?.resetUrl,
+      token: res.data.data?.token,
+    };
+  },
+
+  resetPassword: async (token: string, password: string): Promise<IUser> => {
+    const res = await apiClient.post<ApiResponse<{ user: IUser; token: string }>>('/auth/reset-password', {
+      token,
+      password,
+    });
+    return res.data.data!.user;
   },
 };
 

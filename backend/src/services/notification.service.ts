@@ -1,5 +1,6 @@
 import mongoose, { Types } from 'mongoose';
 import { Notification, INotificationDocument } from '../models/Notification.js';
+import { RealtimeEvents } from '../socket.js';
 
 export class NotificationService {
   /**
@@ -16,6 +17,14 @@ export class NotificationService {
       message: message.trim(),
       isRead: false,
       createdAt: new Date(),
+    });
+
+    // Real-time WebSocket emission to student's private room
+    RealtimeEvents.emitNotification(userId.toString(), {
+      id: notification._id.toString(),
+      message: notification.message,
+      complaintId: complaintId.toString(),
+      createdAt: notification.createdAt,
     });
 
     return notification;

@@ -4,6 +4,7 @@ import { ComplaintApi } from '../api/complaint.api.js';
 import { IComplaint, Category, ComplaintStatus } from '../types/index.js';
 import { Navbar } from '../components/common/Navbar.js';
 import { useAuth } from '../context/AuthContext.js';
+import { useSocket } from '../context/SocketContext.js';
 import {
   Flame,
   Clock,
@@ -83,6 +84,41 @@ export const CampusFeedPage: React.FC = () => {
   useEffect(() => {
     fetchFeed();
   }, [fetchFeed]);
+
+  // Real-Time WebSocket event synchronization
+  const { socket, connected } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUpvoteEvent = (payload: { complaintId: string; upvoteCount: number }) => {
+      setComplaints((prev) =>
+        prev.map((item) =>
+          item.complaintId === payload.complaintId || item.id === payload.complaintId
+            ? { ...item, upvoteCount: payload.upvoteCount }
+            : item
+        )
+      );
+    };
+
+    const handleStatusEvent = (payload: { complaintId: string; status: ComplaintStatus }) => {
+      setComplaints((prev) =>
+        prev.map((item) =>
+          item.complaintId === payload.complaintId || item.id === payload.complaintId
+            ? { ...item, status: payload.status }
+            : item
+        )
+      );
+    };
+
+    socket.on('complaint:upvoted', handleUpvoteEvent);
+    socket.on('complaint:status_updated', handleStatusEvent);
+
+    return () => {
+      socket.off('complaint:upvoted', handleUpvoteEvent);
+      socket.off('complaint:status_updated', handleStatusEvent);
+    };
+  }, [socket]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -213,9 +249,17 @@ export const CampusFeedPage: React.FC = () => {
         {/* Banner Section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-bold mb-2">
-              <Flame className="w-3.5 h-3.5 text-brand-500" />
-              <span>Campus Community Live Feed</span>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-bold">
+                <Flame className="w-3.5 h-3.5 text-brand-500" />
+                <span>Campus Community Live Feed</span>
+              </div>
+              {connected && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Real-time Sync</span>
+                </span>
+              )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
               Community Issues & Crowdsourced Upvotes

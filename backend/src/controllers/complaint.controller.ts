@@ -3,6 +3,7 @@ import { ComplaintService } from '../services/complaint.service.js';
 import { createComplaintSchema } from '../validators/complaint.validator.js';
 import { sendSuccess, sendError } from '../utils/response.util.js';
 import { ROLES } from '../constants/enums.js';
+import { RealtimeEvents } from '../socket.js';
 
 export class ComplaintController {
   /**
@@ -26,6 +27,9 @@ export class ComplaintController {
         req.user.id,
         req.file
       );
+
+      // Real-time broadcast to administrator triage cockpit
+      RealtimeEvents.emitComplaintCreated(complaint.toJSON());
 
       sendSuccess(
         res,
@@ -153,6 +157,9 @@ export class ComplaintController {
         sendError(res, 'Complaint not found', 'NOT_FOUND', 404);
         return;
       }
+
+      // Real-time broadcast to all viewers on the campus feed
+      RealtimeEvents.emitUpvote(result.complaintId, result.upvoteCount);
 
       sendSuccess(
         res,

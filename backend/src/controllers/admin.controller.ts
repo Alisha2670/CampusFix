@@ -10,6 +10,7 @@ import {
 import { ComplaintStatus, Category, Priority } from '../constants/enums.js';
 import { NotificationService } from '../services/notification.service.js';
 import { AnalyticsService } from '../services/analytics.service.js';
+import { RealtimeEvents } from '../socket.js';
 
 export class AdminController {
   /**
@@ -170,6 +171,9 @@ export class AdminController {
           `Your complaint #${complaint.complaintId} status has been updated to "${newStatus}".`
         );
       }
+
+      // Real-time broadcast to all feed and admin listeners
+      RealtimeEvents.emitComplaintStatusUpdated(complaint.toJSON());
 
       sendSuccess(res, `Complaint status successfully updated to "${newStatus}"`, {
         complaint: complaint.toJSON(),

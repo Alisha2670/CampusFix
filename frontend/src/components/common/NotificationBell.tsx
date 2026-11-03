@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell, CheckCheck, Loader2, MessageSquare } from 'lucide-react';
 import { NotificationApi } from '../../api/notification.api.js';
 import { INotification } from '../../types/index.js';
+import { useSocket } from '../../context/SocketContext.js';
 
 export const NotificationBell: React.FC = () => {
   const [notifications, setNotifications] = useState<INotification[]>([]);
@@ -30,6 +31,33 @@ export const NotificationBell: React.FC = () => {
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Real-time notification receiver via WebSocket
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewNotification = (notif: any) => {
+      setUnreadCount((prev) => prev + 1);
+      setNotifications((prev) => [
+        {
+          id: notif.id,
+          userId: '',
+          complaintId: notif.complaintId,
+          message: notif.message,
+          isRead: false,
+          createdAt: notif.createdAt || new Date().toISOString(),
+        },
+        ...prev,
+      ]);
+    };
+
+    socket.on('notification:new', handleNewNotification);
+    return () => {
+      socket.off('notification:new', handleNewNotification);
+    };
+  }, [socket]);
 
   // Close dropdown on click outside
   useEffect(() => {

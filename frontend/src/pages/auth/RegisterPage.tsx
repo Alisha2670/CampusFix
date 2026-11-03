@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../context/AuthContext.js';
 import { ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -10,7 +11,7 @@ export const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,6 +97,45 @@ export const RegisterPage: React.FC = () => {
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Create Account</span>}
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-3 text-slate-400 font-semibold tracking-wider">
+              Or sign up with
+            </span>
+          </div>
+        </div>
+
+        {/* Google Single Sign-On Button */}
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              if (credentialResponse.credential) {
+                try {
+                  setLoading(true);
+                  setError(null);
+                  await loginWithGoogle(credentialResponse.credential);
+                  navigate('/');
+                } catch (err: any) {
+                  setError(err.customMessage || 'Google registration failed.');
+                } finally {
+                  setLoading(false);
+                }
+              }
+            }}
+            onError={() => {
+              setError('Google registration was cancelled or failed.');
+            }}
+            theme="outline"
+            shape="pill"
+            text="signup_with"
+            width="100%"
+          />
+        </div>
 
         <p className="text-center text-sm text-slate-500 mt-6">
           Already registered?{' '}

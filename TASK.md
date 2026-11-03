@@ -240,6 +240,65 @@ Day 7: Full System Integration, Security Audit, E2E Verification & Git Finalizat
 
 ---
 
+## ⚡ Feature Extension — Real-Time WebSockets Architecture (Socket.io)
+
+- [x] **Phase 9.1: Socket.io Engine Setup & Handshake Authentication**
+  - Built `backend/src/socket.ts` with HTTP server wrapping and room segmentation (`feed`, `user:<id>`, `admin`)
+  - Authenticated socket handshakes using existing HTTP-only JWT cookies and auth headers
+- [x] **Phase 9.2: Event Emitters & Real-Time Controller Integration**
+  - Emitted `complaint:upvoted` on upvote actions for live community counters
+  - Emitted `notification:new` on status changes for targeted student push alerts
+  - Emitted `complaint:created` to admin room for live triage cockpit intake
+- [x] **Phase 9.3: Automated Test Verification**
+  - Built `backend/tests/socket.test.ts` (4/4 tests passing)
+- [x] **Phase 9.4: Frontend Live Synchronization**
+  - Created `SocketContext.tsx` with auto-connect/disconnect tied to user session
+  - Connected `CampusFeedPage.tsx` with real-time sync badge and live counter updates
+  - Connected `NotificationBell.tsx` with live unread badge incrementing
+  - Connected `AdminDashboardPage.tsx` with live triage table prepending
+
+---
+
+## 🔐 Feature Extension — Institutional Google OAuth 2.0 Single Sign-On (SSO)
+
+- [x] **Phase 10.1: Google ID Token Cryptographic Verification Service**
+  - Installed `google-auth-library` and created `OAuthService.authenticateWithGoogle()`
+  - Built atomic account linking: links existing accounts by email, or auto-provisions new student with random secure password hash
+- [x] **Phase 10.2: Dedicated Non-Breaking API Route**
+  - Mounted `POST /api/auth/google`, leaving existing `/api/auth/login` and `/api/auth/register` 100% untouched
+- [x] **Phase 10.3: Automated Test Verification**
+  - Built `backend/tests/oauth.test.ts` (4/4 tests passing)
+  - Full backend regression: **83/83 tests passing across all 12 test suites (100% green)**
+- [x] **Phase 10.4: Frontend Sign-In with Google Component**
+  - Wrapped app with `<GoogleOAuthProvider>` in `main.tsx`
+  - Integrated official Google login buttons in `LoginPage.tsx` and `RegisterPage.tsx`
+  - Verified frontend production build (`tsc && vite build` passing with 0 errors in 5.27s)
+
+---
+
+## 🔑 Feature Extension — Password Recovery Architecture (Forgot & Reset Password)
+
+- [x] **Phase 11.1: Database Model & Validation Schemas**
+  - Added `passwordResetToken` (SHA-256 hash, indexed) and `passwordResetExpires` (Date) to `User` schema
+  - Excluded sensitive recovery fields from JSON serialization
+  - Built Zod schemas `forgotPasswordSchema` and `resetPasswordSchema` with password complexity checks
+- [x] **Phase 11.2: Cryptographic Service, Controller & Routes**
+  - `AuthService.requestPasswordReset()`: generates 32-byte cryptographically secure random token, hashes with SHA-256, sets strict 15-minute expiration
+  - Implemented anti-enumeration defense returning identical generic 200 message for non-existent emails
+  - `AuthService.resetPassword()`: validates SHA-256 hash and TTL, updates bcrypt password, invalidates token to defend against replay attacks, and issues fresh session
+  - Mounted endpoints `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`
+- [x] **Phase 11.3: Automated Test Verification**
+  - Built `backend/tests/password-reset.test.ts` covering 6 critical security scenarios (6/6 passing)
+- [x] **Phase 11.4: Frontend UI & Client Integration**
+  - Added `forgotPassword` and `resetPassword` to `AuthApi`
+  - Created `ForgotPasswordPage.tsx` with email input and dev shortcut link
+  - Created `ResetPasswordPage.tsx` with token extraction, show/hide password toggles, and live criteria validation
+  - Updated `LoginPage.tsx` with "Forgot password?" link
+  - Registered `/forgot-password` and `/reset-password` routes in `App.tsx`
+  - Verified frontend production build (`tsc && vite build` passing cleanly with 0 errors in 5.49s)
+
+---
+
 ## 🛡️ Operating Rules for This Project
 
 1. **Explain First:** Every action, module, or code modification is explained before execution.

@@ -202,3 +202,47 @@ No module is marked complete until all applicable tests pass and actual executio
 - [x] Vite React TypeScript build: 1,677 modules transformed, zero type errors, production bundle generated cleanly in 6.64s (PASSED)
 
 **Final Cumulative Platform Matrix:** 10 Backend Test Suites (75 Tests) + 1 Python Pytest Suite (4 Tests) = **79 Total Tests Passed, 0 Failed. 100% Green Verification.**
+
+---
+
+### Feature Extension: Real-Time WebSockets & Google OAuth 2.0 (Executed: 2026-11-03)
+
+**Test Suite 12 (Node.js Jest): `tests/socket.test.ts` (Phase 9)**
+- [x] Socket handshake authentication: connects client via valid JWT auth token (PASSED - 40ms)
+- [x] Live upvote broadcast: broadcasts `complaint:upvoted` event to `feed` room (PASSED - 5ms)
+- [x] Targeted push alerts: delivers `notification:new` exclusively to `user:<userId>` room (PASSED - 118ms)
+- [x] Status broadcast: broadcasts `complaint:status_updated` event to feed listeners (PASSED - 3ms)
+
+**Test Suite 13 (Node.js Jest): `tests/oauth.test.ts` (Phase 10)**
+- [x] First-time Google user: auto-provisions student account with secure random password and sets session cookie (PASSED - 183ms)
+- [x] Existing user account linking: links `googleId` to existing student email without creating duplicates (PASSED - 62ms)
+- [x] Validation: rejects requests without credential payload with 400 Bad Request (PASSED - 13ms)
+- [x] Cryptographic defense: rejects forged or invalid Google tokens with 401 Unauthorized (PASSED - 660ms)
+
+**Full Backend Regression (All 12 Suites): `npm test`**
+- [x] Total: **83/83 tests passing across 12 test suites in 34.08s (100% GREEN)**.
+
+**Frontend Verification: `npm run build`**
+- [x] Vite React TypeScript build: 1,708 modules transformed, zero type errors, production bundle generated cleanly in 5.27s (PASSED)
+
+**Final Cumulative Platform Matrix:** 12 Backend Test Suites (83 Tests) + 1 Python Pytest Suite (4 Tests) = **87 Total Tests Passed, 0 Failed. 100% Green Verification.**
+
+---
+
+### Feature Extension: Password Recovery Architecture (Executed: 2026-11-03)
+
+**Test Suite 14 (Node.js Jest): `tests/password-reset.test.ts` (Phase 11)**
+- [x] Cryptographic Hash Storage: generates raw 32-byte token and stores one-way SHA-256 hash with 15-minute expiration in DB (PASSED - 231ms)
+- [x] Password Reset & Credential Update: validates token, hashes new password with bcrypt, clears token fields, and enables login with new credentials (PASSED - 350ms)
+- [x] Token Expiration Defense: rejects expired reset tokens (>15 mins) with 400 Bad Request (`INVALID_OR_EXPIRED_TOKEN`) (PASSED - 22ms)
+- [x] Tamper / Invalid Token Defense: rejects arbitrary or forged tokens with 400 Bad Request (PASSED - 15ms)
+- [x] Replay Attack Prevention: rejects token reuse after successful reset (PASSED - 193ms)
+- [x] Account Enumeration Protection: returns 200 with standard generic confirmation for non-existent emails without leaking account existence (PASSED - 16ms)
+
+**Full Backend Regression (All 13 Suites): `npm test`**
+- [x] Total: **89/89 tests passing across 13 test suites in 37.68s (100% GREEN)**.
+
+**Frontend Verification: `npm run build`**
+- [x] Vite React TypeScript build: 1,710 modules transformed, zero type errors, production bundle generated cleanly in 5.49s (PASSED)
+
+**Final Cumulative Platform Matrix:** 13 Backend Test Suites (89 Tests) + 1 Python Pytest Suite (4 Tests) = **93 Total Tests Passed, 0 Failed. 100% Green Verification.**

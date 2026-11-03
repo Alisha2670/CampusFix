@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { User, IUserDocument } from '../models/User.js';
 import { ROLES } from '../constants/enums.js';
 import { ENV } from '../config/env.js';
@@ -69,6 +70,87 @@ export class AuthService {
    */
   static async getCurrentUser(userId: string): Promise<IUserDocument | null> {
     return User.findById(userId);
+  }
+
+  /**
+   * Request a password reset link for a user
+   * Returns generic message to prevent account enumeration
+   * In development/testing, returns resetUrl and token for ergonomics
+   */
+  static async requestPasswordReset(email: string): Promise<{
+    message: string;
+    resetUrl?: string;
+    token?: string;
+  }> {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    // Anti-enumeration: If user does not exist, return generic message without error
+    if (!user) {
+      return {
+        message: 'If an account with this email exists, a password reset link has been generated.',
+      };
+    }
+
+    // Generate secure 32-byte hexadecimal random token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // Hash token with SHA-256 for secure DB persistence
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Set token hash and 15-minute expiration
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save();
+
+    const resetUrl = `${ENV.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    console.log(`[AUTH] 🔑 Password reset requested for ${user.email}. Reset Link: ${resetUrl}`);
+
+    return {
+      message: 'If an account with this email exists, a password reset link has been generated.',
+      resetUrl,
+      token: resetToken,
+    };
+  }
+
+  /**
+   * Reset user password using the one-time raw token
+   */
+  static async resetPassword(
+    rawToken: string,
+    newPassword: string
+  ): Promise<{
+    user: IUserDocument;
+    token: string;
+  }> {
+    // Hash incoming raw token to find corresponding user
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      const error: any = new Error('Password reset token is invalid or has expired.');
+      error.statusCode = 400;
+      error.code = 'INVALID_OR_EXPIRED_TOKEN';
+      throw error;
+    }
+
+    // Hash the new password with bcrypt
+    const saltRounds = 10;
+    user.passwordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    // Invalidate reset token and expiration (replay attack prevention)
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    await user.save();
+
+    // Issue a fresh authentication session token
+    const sessionToken = this.generateToken(user);
+    return { user, token: sessionToken };
   }
 
   /**

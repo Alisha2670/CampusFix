@@ -64,10 +64,10 @@ The platform follows a decoupled, resilient microservice-inspired architecture:
 | Layer | Technologies | Role / Responsibility |
 |---|---|---|
 | **Client (Frontend)** | React 18, TypeScript, Vite, Tailwind CSS, Lucide React, Axios | Responsive single-page application with separate Student and Admin triage workflows |
-| **API Coordinator (Backend)** | Node.js, Express.js, TypeScript, Mongoose, Zod, Bcrypt.js, Multer | RESTful API gateway, authentication, RBAC authorization, state machine, and data persistence |
+| **API Coordinator (Backend)** | Node.js, Express.js, TypeScript, Mongoose, Zod, Socket.io, Google Auth, Bcrypt.js, Multer | RESTful API gateway, WebSockets real-time sync, OAuth 2.0, state machine, and data persistence |
 | **AI Microservice** | Python 3.12, FastAPI, Uvicorn, SentenceTransformers (`all-MiniLM-L6-v2`), Scikit-learn, NumPy | Vector embeddings, 384-dimensional cosine similarity scoring, and NLP safety hazard classification |
 | **Database & CDN** | MongoDB Atlas, Cloudinary CDN | Cloud NoSQL persistence with compound indexes; image optimization and global CDN delivery |
-| **Testing & QA** | Jest, Supertest, `mongodb-memory-server`, Pytest, HTTPX, TypeScript (`tsc`) | 75 backend integration/security tests, 4 Pytest unit tests, and production type checking |
+| **Testing & QA** | Jest, Supertest, `mongodb-memory-server`, Pytest, HTTPX, TypeScript (`tsc`) | 83 backend integration/security/socket/oauth tests, 4 Pytest unit tests, and production type checking |
 
 ---
 
@@ -113,6 +113,17 @@ $$\text{Submitted} \longrightarrow \text{Acknowledged} \longrightarrow \text{Ass
 - **Atomic MongoDB Operations:** Toggle upvotes utilize atomic `$addToSet` and `$pull` operators paired with `$inc`, preventing race conditions and double-voting.
 - **Privacy-Preserving Public Board:** Reporter personal identifiers (email, phone) are strictly omitted from the public community feed (`/feed`), revealing only the author's public name while preserving student privacy.
 - **Admin Triage Prioritization:** Administrators can sort incoming tickets by **Most Upvoted** to instantly identify campus bottlenecks impacting tens of students.
+
+### 7. ⚡ Real-Time Bidirectional Event Streaming (Socket.io)
+- **Live Feed Upvote Sync:** When any student upvotes an issue, all connected clients viewing the Campus Feed experience instant counter updates in real time without refreshing.
+- **Targeted Notification Rooms:** Sockets are segmented into private user rooms (`user:<userId>`), allowing instant slide-in push alerts when a technician is dispatched or status changes.
+- **Live Triage Intake:** Incoming student tickets are prepended to the administrator's cockpit in real-time.
+- **Transparent Fallback:** Built on top of native Node HTTP with graceful degradation—if a socket drops, the client continues functioning seamlessly over standard HTTP REST.
+
+### 8. 🔐 Institutional Single Sign-On (Google OAuth 2.0)
+- **1-Click Authentication:** Allows students to sign in using their verified institutional Google accounts.
+- **Cryptographic Token Verification:** Backed by `google-auth-library` to verify Google ID token signatures against Google's public JWKS endpoints.
+- **Atomic Account Linking & Provisioning:** Links existing accounts by email seamlessly or auto-provisions new student profiles with secure random password hashes, preventing brute-force vector vulnerabilities.
 
 ---
 
@@ -200,10 +211,10 @@ Open **`http://localhost:5173`** in your browser!
 
 ## 🧪 Test Verification Matrix
 
-FixMyCampus is verified through **79 automated test cases** across unit, integration, and security layers:
+FixMyCampus is verified through **87 automated test cases** across unit, integration, security, real-time, and OAuth layers:
 
 ```bash
-# Run all 75 Node.js backend tests (Jest)
+# Run all 83 Node.js backend tests (Jest)
 cd backend
 npm test
 
@@ -228,17 +239,19 @@ npm run build
 | `tests/e2e.test.ts` | Jest | 8 | **PASS** | Master lifecycle journey from registration to resolution & analytics |
 | `tests/security.test.ts` | Jest | 8 | **PASS** | Tampered JWTs, expired tokens, privilege escalation, IDOR defenses |
 | `tests/upvote.test.ts` | Jest | 12 | **PASS** | Atomic upvotes, toggle logic, campus feed sorting & privacy controls |
+| `tests/socket.test.ts` | Jest | 4 | **PASS** | Real-time WebSockets handshake, feed upvote broadcast, private room alerts |
+| `tests/oauth.test.ts` | Jest | 4 | **PASS** | Google ID token cryptographic verification, auto-provisioning, account linking |
 | `tests/health.test.ts` | Jest | 2 | **PASS** | Health probe (`200 OK`) and 404 catch-all |
 | `ai_service/tests/` | Pytest | 4 | **PASS** | Model lifespan loading, 384-d cosine similarity, NLP hazard classifier |
-| **Total Test Coverage** | | **79 / 79** | **100%** | Zero failing tests |
+| **Total Test Coverage** | | **87 / 87** | **100%** | Zero failing tests |
 
 ---
 
 ## 🗺️ Production Roadmap & Extension Points
 
-- [ ] **Google Workspace OAuth 2.0 (SSO):** Institutional `.edu` domain verification and single-click authentication.
+- [x] **Real-time WebSockets:** Live event synchronization and push alerts using Socket.io (Completed).
+- [x] **Google Workspace OAuth 2.0 (SSO):** 1-Click institutional Google sign-in and cryptographic token verification (Completed).
 - [ ] **Transactional Email Recovery (Resend / AWS SES):** Time-bound cryptographic password reset tokens (SHA-256 with 15-minute TTL).
-- [ ] **Real-time WebSockets:** Live push notification streaming using Socket.io or WebSockets.
 - [ ] **Mobile App Client:** React Native companion application for facility maintenance technicians.
 
 ---

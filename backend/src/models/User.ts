@@ -7,6 +7,10 @@ export interface IUser {
   email: string;
   passwordHash: string;
   role: Role;
+  googleId?: string | null;
+  avatarUrl?: string | null;
+  passwordResetToken?: string | null;
+  passwordResetExpires?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +53,25 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
       },
       default: ROLES.STUDENT,
     },
+    googleId: {
+      type: String,
+      default: null,
+      sparse: true,
+      index: true,
+    },
+    avatarUrl: {
+      type: String,
+      default: null,
+    },
+    passwordResetToken: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    passwordResetExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -57,6 +80,8 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
         ret.id = ret._id;
         delete ret._id;
         delete ret.passwordHash;
+        delete ret.passwordResetToken;
+        delete ret.passwordResetExpires;
         delete ret.__v;
         return ret;
       },

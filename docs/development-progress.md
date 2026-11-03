@@ -378,3 +378,67 @@
   - Python AI Tests: 4 passed, 0 failed in 14.02s (`pytest tests -v`)
   - Frontend Production Build: 1,677 modules transformed, 0 type errors, clean production bundle in 6.64s (`tsc && vite build`)
   - Total Cumulative Verification: **79 / 79 automated tests passed (100% Green)**.
+
+---
+
+## Feature Extension — Real-Time WebSockets & Google OAuth 2.0 (SSO)
+
+### Objectives:
+- [x] Phase 9: Real-Time WebSockets Engine (`backend/src/socket.ts`, `backend/src/server.ts`, `frontend/src/context/SocketContext.tsx`, `backend/tests/socket.test.ts`)
+- [x] Phase 10: Institutional Google OAuth 2.0 Single Sign-On (`backend/src/services/oauth.service.ts`, `backend/src/routes/auth.routes.ts`, `backend/tests/oauth.test.ts`, `frontend/src/pages/auth/LoginPage.tsx`, `frontend/src/pages/auth/RegisterPage.tsx`)
+
+---
+
+## WebSockets & OAuth Audit Summary
+
+- **Completed Modules:**
+  - `backend/src/socket.ts`: Central singleton socket manager with HTTP server wrapping, cookie auth handshake, room segmentation (`feed`, `user:<id>`, `admin`), and typed dispatch helpers.
+  - `backend/src/services/oauth.service.ts`: Google ID token cryptographic verifier using `google-auth-library` and atomic account linker/auto-provisioner.
+  - `backend/src/routes/auth.routes.ts`: Mounted `POST /api/auth/google` leaving existing email/password routes untouched.
+  - `backend/tests/socket.test.ts`: 4 automated tests verifying handshake auth, upvote broadcasting, private notifications, and status alerts.
+  - `backend/tests/oauth.test.ts`: 4 automated tests verifying student auto-provisioning, account linking, payload validation, and forged token rejection.
+  - `frontend/src/context/SocketContext.tsx`: Lifecycle-managed socket provider providing real-time synchronization to React components.
+  - `frontend/src/pages/CampusFeedPage.tsx`: Integrated live upvote listener and real-time sync status indicator.
+  - `frontend/src/components/common/NotificationBell.tsx`: Integrated instant unread badge incrementing on socket alerts.
+  - `frontend/src/pages/admin/AdminDashboardPage.tsx`: Integrated live triage intake and real-time upvote counter updates.
+  - `frontend/src/pages/auth/LoginPage.tsx` & `RegisterPage.tsx`: Added official Google Sign-In button with visual dividers.
+- **Tests Executed & Actual Results:**
+  - Socket Tests: 4 passed, 0 failed in 3.96s (`tests/socket.test.ts`)
+  - OAuth Tests: 4 passed, 0 failed in 5.15s (`tests/oauth.test.ts`)
+  - Full Backend Regression: 83 passed, 0 failed across all 12 test suites in 34.09s (`npm test`)
+  - Python AI Tests: 4 passed, 0 failed in 14.02s (`pytest tests -v`)
+  - Frontend Production Build: 1,708 modules transformed, 0 type errors, clean production bundle in 5.27s (`tsc && vite build`)
+  - Total Cumulative Verification: **87 / 87 automated tests passed (100% Green)**.
+
+---
+
+## Feature Extension — Password Recovery Architecture (Forgot & Reset Password)
+
+### Objectives:
+- [x] Phase 11.1: Database Model & Validation Schemas (`backend/src/models/User.ts`, `backend/src/validators/auth.validator.ts`)
+- [x] Phase 11.2: Cryptographic Service, Controller & Routes (`backend/src/services/auth.service.ts`, `backend/src/controllers/auth.controller.ts`, `backend/src/routes/auth.routes.ts`)
+- [x] Phase 11.3: Automated Test Verification (`backend/tests/password-reset.test.ts`, 6/6 tests passing)
+- [x] Phase 11.4: Frontend UI & Client Integration (`frontend/src/api/auth.api.ts`, `ForgotPasswordPage.tsx`, `ResetPasswordPage.tsx`, `LoginPage.tsx`, `App.tsx`)
+
+---
+
+## Password Recovery Audit Summary
+
+- **Completed Modules:**
+  - `backend/src/models/User.ts`: Added indexed `passwordResetToken` and `passwordResetExpires` fields, omitted from JSON serialization.
+  - `backend/src/validators/auth.validator.ts`: Built Zod schemas `forgotPasswordSchema` and `resetPasswordSchema` with complexity rules.
+  - `backend/src/services/auth.service.ts`: Implemented `requestPasswordReset` (32-byte crypto token, SHA-256 hash, 15m TTL, anti-enumeration) and `resetPassword` (hash check, replay defense, bcrypt hash, session token issuance).
+  - `backend/src/controllers/auth.controller.ts`: Added `forgotPassword` and `resetPassword` endpoints setting HTTP-only session cookie.
+  - `backend/src/routes/auth.routes.ts`: Mounted `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`.
+  - `backend/tests/password-reset.test.ts`: 6 comprehensive automated tests verifying cryptographic storage, expiry enforcement, replay defense, enumeration protection, and new credential authentication.
+  - `frontend/src/api/auth.api.ts`: Added `forgotPassword` and `resetPassword` methods.
+  - `frontend/src/pages/auth/ForgotPasswordPage.tsx`: Built recovery request UI with feedback state and development shortcut.
+  - `frontend/src/pages/auth/ResetPasswordPage.tsx`: Built token-driven new password page with live criteria checklist and show/hide toggles.
+  - `frontend/src/pages/auth/LoginPage.tsx`: Added "Forgot password?" direct link.
+  - `frontend/src/App.tsx`: Registered routes for `/forgot-password` and `/reset-password`.
+- **Tests Executed & Actual Results:**
+  - Password Reset Tests: 6 passed, 0 failed in 5.06s (`tests/password-reset.test.ts`)
+  - Full Backend Regression: 89 passed, 0 failed across all 13 test suites in 37.68s (`npm test`)
+  - Python AI Tests: 4 passed, 0 failed in 14.02s (`pytest tests -v`)
+  - Frontend Production Build: 1,710 modules transformed, 0 type errors, clean production bundle in 5.49s (`tsc && vite build`)
+  - Total Cumulative Verification: **93 / 93 automated tests passed (100% Green)**.

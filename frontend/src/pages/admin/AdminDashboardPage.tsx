@@ -3,6 +3,7 @@ import { AdminApi } from '../../api/admin.api.js';
 import { IComplaint, Category, Priority, ComplaintStatus, IUser } from '../../types/index.js';
 import { Navbar } from '../../components/common/Navbar.js';
 import { StatusTimeline } from '../../components/complaints/StatusTimeline.js';
+import { useSocket } from '../../context/SocketContext.js';
 import {
   Search,
   Filter,
@@ -182,6 +183,38 @@ export const AdminDashboardPage: React.FC = () => {
   useEffect(() => {
     fetchComplaints();
   }, [statusFilter, categoryFilter, priorityFilter, sortFilter, page]);
+
+  // Real-Time WebSocket synchronization for administrator cockpit
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewComplaint = (payload: any) => {
+      if (page === 1 && (statusFilter === 'all' || statusFilter === 'Submitted')) {
+        setComplaints((prev) => [payload, ...prev.slice(0, 9)]);
+      }
+      setTotal((prev) => prev + 1);
+    };
+
+    const handleUpvoteEvent = (payload: { complaintId: string; upvoteCount: number }) => {
+      setComplaints((prev) =>
+        prev.map((item) =>
+          item.complaintId === payload.complaintId || item.id === payload.complaintId
+            ? { ...item, upvoteCount: payload.upvoteCount }
+            : item
+        )
+      );
+    };
+
+    socket.on('complaint:created', handleNewComplaint);
+    socket.on('complaint:upvoted', handleUpvoteEvent);
+
+    return () => {
+      socket.off('complaint:created', handleNewComplaint);
+      socket.off('complaint:upvoted', handleUpvoteEvent);
+    };
+  }, [socket, page, statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

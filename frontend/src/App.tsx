@@ -1,9 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.js';
+import { SocketProvider } from './context/SocketContext.js';
 import { HomePage } from './pages/HomePage.js';
 import { LoginPage } from './pages/auth/LoginPage.js';
 import { RegisterPage } from './pages/auth/RegisterPage.js';
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage.js';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage.js';
 import { SubmitComplaintPage } from './pages/SubmitComplaintPage.js';
 import { MyComplaintsPage } from './pages/MyComplaintsPage.js';
 import { CampusFeedPage } from './pages/CampusFeedPage.js';
@@ -55,52 +58,56 @@ export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/submit"
-            element={
-              <ProtectedRoute>
-                <SubmitComplaintPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/my-complaints"
-            element={
-              <ProtectedRoute>
-                <MyComplaintsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/feed"
-            element={
-              <ProtectedRoute>
-                <CampusFeedPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminDashboardPage />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/analytics"
-            element={
-              <AdminRoute>
-                <AdminAnalyticsPage />
-              </AdminRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <SocketProvider>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route
+              path="/submit"
+              element={
+                <ProtectedRoute>
+                  <SubmitComplaintPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-complaints"
+              element={
+                <ProtectedRoute>
+                  <MyComplaintsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/feed"
+              element={
+                <ProtectedRoute>
+                  <CampusFeedPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboardPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/analytics"
+              element={
+                <AdminRoute>
+                  <AdminAnalyticsPage />
+                </AdminRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </SocketProvider>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../context/AuthContext.js';
 import { ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -9,7 +10,7 @@ export const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +59,15 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-slate-700">Password</label>
+              <Link
+                to="/forgot-password"
+                className="text-xs text-brand-600 hover:text-brand-700 hover:underline font-medium"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               type="password"
               required
@@ -77,6 +86,45 @@ export const LoginPage: React.FC = () => {
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Sign In</span>}
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-3 text-slate-400 font-semibold tracking-wider">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        {/* Google Single Sign-On Button */}
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              if (credentialResponse.credential) {
+                try {
+                  setLoading(true);
+                  setError(null);
+                  await loginWithGoogle(credentialResponse.credential);
+                  navigate('/');
+                } catch (err: any) {
+                  setError(err.customMessage || 'Google sign-in failed.');
+                } finally {
+                  setLoading(false);
+                }
+              }
+            }}
+            onError={() => {
+              setError('Google sign-in was cancelled or failed.');
+            }}
+            theme="outline"
+            shape="pill"
+            text="signin_with"
+            width="100%"
+          />
+        </div>
 
         <p className="text-center text-sm text-slate-500 mt-6">
           Don't have an account?{' '}
