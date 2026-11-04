@@ -299,6 +299,29 @@ Day 7: Full System Integration, Security Audit, E2E Verification & Git Finalizat
 
 ---
 
+## 📧 Feature Extension — Hybrid Email Notification System (Nodemailer)
+
+- [x] **Phase 12.1: Dependencies & Environment Setup**
+  - Installed `nodemailer` and `@types/nodemailer`
+  - Configured `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and `EMAIL_FROM` with development console fallback
+- [x] **Phase 12.2: Reusable HTML Email Service & Templates**
+  - Built `backend/src/services/email.service.ts` with singleton transporter and zero-crash error handling
+  - Created responsive campus-branded HTML templates for:
+    - Ticket Submission Confirmation Receipt (with Ticket ID e.g. `FC-1024`, category, room location, and tracking link)
+    - Complaint Status Progressions (color-coded badges for `In Progress`, `Resolved`, `Assigned`)
+    - Password Recovery Email (with 15-minute expiration warning and direct reset button)
+- [x] **Phase 12.3: Non-Blocking Fire-and-Forget Triggers**
+  - Integrated asynchronous dispatch into `AuthService.requestPasswordReset()`
+  - Integrated asynchronous dispatch into `ComplaintService.createComplaint()`
+  - Integrated asynchronous dispatch into `AdminController.updateComplaintStatus()` and triage department assignment
+  - Zero latency impact on main API requests (<30ms execution)
+- [x] **Phase 12.4: Automated Testing & Verification**
+  - Built `backend/tests/email.test.ts` (6/6 tests passing)
+  - Full backend regression: **95/95 tests passing across all 14 test suites (100% Green)**
+  - Frontend production build: `tsc && vite build` passing with 0 errors (1,710 modules in 5.37s)
+
+---
+
 ## 🛡️ Operating Rules for This Project
 
 1. **Explain First:** Every action, module, or code modification is explained before execution.

@@ -1,8 +1,10 @@
 import { Types } from 'mongoose';
 import { Complaint, IComplaintDocument } from '../models/Complaint.js';
+import { User } from '../models/User.js';
 import { CreateComplaintInput } from '../validators/complaint.validator.js';
 import { CloudinaryService } from './cloudinary.service.js';
 import { AiService } from './ai.service.js';
+import { EmailService } from './email.service.js';
 import { COMPLAINT_STATUSES, AI_ANALYSIS_STATUSES } from '../constants/enums.js';
 
 export class ComplaintService {
@@ -62,6 +64,22 @@ export class ComplaintService {
 
     // 4. Asynchronously invoke AI analysis (Zero UI lag / Non-blocking)
     void AiService.analyzeComplaintAsync(complaint._id);
+
+    // 5. Asynchronously dispatch confirmation receipt email (Zero UI lag / Non-blocking)
+    User.findById(studentObjectId)
+      .then((student) => {
+        if (student?.email) {
+          EmailService.sendTicketConfirmationEmail(student.email, student.name, {
+            complaintId: complaint.complaintId,
+            title: complaint.title,
+            category: complaint.category,
+            location: complaint.location,
+          }).catch((err) => {
+            console.warn('[EMAIL WARNING] Failed to send ticket confirmation email:', err.message);
+          });
+        }
+      })
+      .catch(() => {});
 
     return complaint;
   }

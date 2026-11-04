@@ -10,6 +10,7 @@ import {
 import { ComplaintStatus, Category, Priority } from '../constants/enums.js';
 import { NotificationService } from '../services/notification.service.js';
 import { AnalyticsService } from '../services/analytics.service.js';
+import { EmailService } from '../services/email.service.js';
 import { RealtimeEvents } from '../socket.js';
 
 export class AdminController {
@@ -170,6 +171,20 @@ export class AdminController {
           complaint._id,
           `Your complaint #${complaint.complaintId} status has been updated to "${newStatus}".`
         );
+
+        // Asynchronously dispatch status update email to student (Zero UI lag / Non-blocking)
+        const studentEmail = (complaint.studentId as any)?.email;
+        const studentName = (complaint.studentId as any)?.name;
+        if (studentEmail) {
+          EmailService.sendStatusUpdateEmail(studentEmail, studentName, {
+            complaintId: complaint.complaintId,
+            title: complaint.title,
+            status: newStatus,
+            department: complaint.assignedDepartment || undefined,
+          }).catch((err) => {
+            console.warn('[EMAIL WARNING] Failed to send status update email:', err.message);
+          });
+        }
       }
 
       // Real-time broadcast to all feed and admin listeners
@@ -250,6 +265,20 @@ export class AdminController {
             complaint._id,
             `Your complaint #${complaint.complaintId} has been assigned to "${assignedDepartment}".`
           );
+
+          // Asynchronously dispatch department assignment email to student (Zero UI lag / Non-blocking)
+          const studentEmail = (complaint.studentId as any)?.email;
+          const studentName = (complaint.studentId as any)?.name;
+          if (studentEmail) {
+            EmailService.sendStatusUpdateEmail(studentEmail, studentName, {
+              complaintId: complaint.complaintId,
+              title: complaint.title,
+              status: complaint.status,
+              department: assignedDepartment,
+            }).catch((err) => {
+              console.warn('[EMAIL WARNING] Failed to send department assignment email:', err.message);
+            });
+          }
         }
       }
 

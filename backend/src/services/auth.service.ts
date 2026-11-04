@@ -6,6 +6,7 @@ import { ROLES } from '../constants/enums.js';
 import { ENV } from '../config/env.js';
 import { RegisterInput, LoginInput } from '../validators/auth.validator.js';
 import { AuthUserPayload } from '../middleware/auth.middleware.js';
+import { EmailService } from './email.service.js';
 
 export class AuthService {
   /**
@@ -106,6 +107,11 @@ export class AuthService {
     const resetUrl = `${ENV.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     console.log(`[AUTH] 🔑 Password reset requested for ${user.email}. Reset Link: ${resetUrl}`);
+
+    // Asynchronously dispatch recovery email (Zero UI lag / Non-blocking)
+    EmailService.sendPasswordResetEmail(user.email, user.name, resetUrl).catch((err) => {
+      console.warn('[EMAIL WARNING] Failed to send password reset email:', err.message);
+    });
 
     return {
       message: 'If an account with this email exists, a password reset link has been generated.',

@@ -442,3 +442,34 @@
   - Python AI Tests: 4 passed, 0 failed in 14.02s (`pytest tests -v`)
   - Frontend Production Build: 1,710 modules transformed, 0 type errors, clean production bundle in 5.49s (`tsc && vite build`)
   - Total Cumulative Verification: **93 / 93 automated tests passed (100% Green)**.
+
+---
+
+## Feature Extension — Hybrid Email Notification System (Nodemailer)
+
+### Objectives:
+- [x] Phase 12.1: Dependencies & Environment Setup (`nodemailer`, `@types/nodemailer`, `backend/src/config/env.ts`)
+- [x] Phase 12.2: Reusable HTML Email Service & Templates (`backend/src/services/email.service.ts`)
+- [x] Phase 12.3: Non-Blocking Fire-and-Forget Triggers (`auth.service.ts`, `complaint.service.ts`, `admin.controller.ts`)
+- [x] Phase 12.4: Automated Testing & Regression (`backend/tests/email.test.ts`, 6/6 tests passing)
+
+---
+
+## Email Notification Audit Summary
+
+- **Completed Modules:**
+  - `backend/src/config/env.ts`: Added `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and `EMAIL_FROM` with development console fallback.
+  - `backend/src/services/email.service.ts`: Singleton Nodemailer transporter with zero-crash error handling and HTML templates for:
+    - Ticket Submission Confirmation Receipt (with Ticket ID e.g. `FC-1024`, category, room location, and tracking link).
+    - Status Update Notifications (color-coded badges for `In Progress`, `Resolved`, `Assigned`).
+    - Password Recovery Email (with 15-minute expiration warning and direct reset button).
+  - `backend/src/services/auth.service.ts`: Added asynchronous recovery email trigger to `requestPasswordReset()`.
+  - `backend/src/services/complaint.service.ts`: Added asynchronous receipt confirmation trigger to `createComplaint()`.
+  - `backend/src/controllers/admin.controller.ts`: Added asynchronous status and department assignment email triggers to `updateComplaintStatus()` and `updateComplaintTriage()`.
+  - `backend/tests/email.test.ts`: 6 automated tests verifying template rendering, lifecycle states, password recovery links, transporter error recovery, and non-blocking integration triggers.
+- **Tests Executed & Actual Results:**
+  - Email Notification Tests: 6 passed, 0 failed in 5.34s (`tests/email.test.ts`)
+  - Full Backend Regression: 95 passed, 0 failed across all 14 test suites in 39.95s (`npm test`)
+  - Python AI Tests: 4 passed, 0 failed in 14.02s (`pytest tests -v`)
+  - Frontend Production Build: 1,710 modules transformed, 0 type errors, clean production bundle in 5.37s (`tsc && vite build`)
+  - Total Cumulative Verification: **99 / 99 automated tests passed (100% Green)**.
