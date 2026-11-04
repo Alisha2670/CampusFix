@@ -6,7 +6,7 @@ import './index.css';
 
 const googleClientId =
   (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) ||
-  '918273645-campusfix.apps.googleusercontent.com';
+  '741138428055-h0p4fvplndh80123ed6m756q2pf8ot1s.apps.googleusercontent.com';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
